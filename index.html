@@ -100,7 +100,7 @@
   .qa .r{color:var(--red);font-style:normal}
   .qa .g{color:var(--green);font-style:normal}
 
-  .figure{position:relative;border:1px solid var(--rule);background:var(--panel)}
+  .figure{position:relative;border:1px solid var(--rule);background:#eee9e1}
   canvas{display:block;width:100%;height:auto}
 
   .legend{display:flex;flex-wrap:wrap;gap:3px 20px;font-size:13.5px;line-height:1.5;color:var(--ink-2);margin:0}
@@ -114,7 +114,7 @@
   .ln.dash{border-top:1.6px dashed var(--green);opacity:.75}
   .sw.grey{border-color:rgba(232,238,230,.3);background:rgba(232,238,230,.05)}
   .el{display:inline-block;width:18px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1px dashed rgba(232,238,230,.7);border-radius:50%;
-      background:radial-gradient(circle,rgba(232,238,230,.95) 0 2px,rgba(122,211,165,.45) 3px,transparent 7px)}
+      background:radial-gradient(circle,#2c3038 0 2.5px,#fff 3px 3.6px,rgba(90,150,220,.55) 4px,transparent 8px)}
   .gl{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1.5px solid var(--green);border-radius:50%;
       background:linear-gradient(var(--green),var(--green)) center/6px 1.5px no-repeat,linear-gradient(var(--green),var(--green)) center/1.5px 6px no-repeat}
 
@@ -816,12 +816,10 @@
   const canvas = document.getElementById('scene');
   const ctx = canvas.getContext('2d');
   const off = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
-  const sceneC = off(), sceneX = sceneC.getContext('2d');
   const maskC  = off(), maskX  = maskC.getContext('2d');
   const revC   = off(), revX   = revC.getContext('2d');
 
-  const INK = '232,238,230', GREEN = '122,211,165', RED = '227,106,95';
-  const PANEL = '#0e3024';
+  const GREEN = '34,139,90', RED = '205,64,58';
   const FONT = '"Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif';
 
   const sel = document.getElementById('task');
@@ -914,68 +912,233 @@
     maskX.restore();
   }
 
-  function drawGrid(c){
-    c.save();
-    c.strokeStyle = `rgba(${INK},.045)`; c.lineWidth = 1;
-    c.beginPath();
-    for (let x = OUTER.x; x <= OUTER.x + OUTER.w; x += PX_PER_M){ c.moveTo(x + .5, OUTER.y); c.lineTo(x + .5, OUTER.y + OUTER.h); }
-    for (let y = OUTER.y; y <= OUTER.y + OUTER.h; y += PX_PER_M){ c.moveTo(OUTER.x, y + .5); c.lineTo(OUTER.x + OUTER.w, y + .5); }
-    c.stroke();
-    c.restore();
-  }
-  function drawWalls(c){
-    c.save();
-    c.strokeStyle = `rgba(${INK},.88)`; c.lineWidth = 3.2; c.lineCap = 'square';
-    c.beginPath();
-    for (const s of WALLS){ c.moveTo(s.x1, s.y1); c.lineTo(s.x2, s.y2); }
-    c.stroke();
-    // door swings (architectural convention)
-    c.strokeStyle = `rgba(${INK},.22)`; c.lineWidth = 1;
-    for (const r of ROOMS) for (const d of r.doors){
-      const R = d.b - d.a;
-      let hx, hy, a0, a1, lx, ly;
-      if (d.s === 't'){ hx = d.a; hy = r.y;       a0 = 0;           a1 = Math.PI / 2; lx = hx; ly = hy + R; }
-      if (d.s === 'b'){ hx = d.a; hy = r.y + r.h; a0 = -Math.PI / 2; a1 = 0;          lx = hx; ly = hy - R; }
-      if (d.s === 'l'){ hx = r.x; hy = d.a;       a0 = 0;           a1 = Math.PI / 2; lx = hx + R; ly = hy; }
-      if (d.s === 'r'){ hx = r.x + r.w; hy = d.a; a0 = Math.PI / 2; a1 = Math.PI;     lx = hx - R; ly = hy; }
-      c.beginPath(); c.arc(hx, hy, R, a0, a1); c.stroke();
-      c.beginPath(); c.moveTo(hx, hy); c.lineTo(lx, ly); c.stroke();
+  /* ---------- home-style static layers (drawn once) ---------- */
+  const DARK = '58,52,46';
+  function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const rgb = (c, k = 1) => `rgb(${Math.round(c[0]*k)},${Math.round(c[1]*k)},${Math.round(c[2]*k)})`;
+
+  function woodFloor(c, x, y, w, h, base, R, vertical){
+    c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
+    const P = 15;
+    if (vertical){
+      for (let xx = x; xx < x + w; xx += P){
+        c.fillStyle = rgb(base, 0.9 + R() * 0.16); c.fillRect(xx, y, P, h);
+        c.fillStyle = 'rgba(0,0,0,.05)';
+        for (let g = 0; g < 3; g++) c.fillRect(xx + 1 + R() * (P - 2), y, 1, h);
+        c.fillStyle = 'rgba(60,35,15,.2)'; c.fillRect(xx, y, 1, h);
+        for (let yy = y + R() * 200; yy < y + h; yy += 170 + R() * 130) c.fillRect(xx, yy, P, 1);
+      }
+    } else {
+      for (let yy = y; yy < y + h; yy += P){
+        c.fillStyle = rgb(base, 0.9 + R() * 0.16); c.fillRect(x, yy, w, P);
+        c.fillStyle = 'rgba(0,0,0,.05)';
+        for (let g = 0; g < 3; g++) c.fillRect(x, yy + 1 + R() * (P - 2), w, 1);
+        c.fillStyle = 'rgba(60,35,15,.2)'; c.fillRect(x, yy, w, 1);
+        for (let xx = x + R() * 200; xx < x + w; xx += 170 + R() * 130) c.fillRect(xx, yy, 1, P);
+      }
     }
     c.restore();
   }
-  function drawLabels(c){
-    c.save();
-    c.fillStyle = `rgba(${INK},.62)`;
-    c.font = `italic 19px ${FONT}`;
+  function tileFloor(c, x, y, w, h, base){
+    c.fillStyle = rgb(base); c.fillRect(x, y, w, h);
+    c.fillStyle = rgb(base, 0.86);
+    for (let xx = x; xx < x + w; xx += 32) c.fillRect(xx, y, 1.5, h);
+    for (let yy = y; yy < y + h; yy += 32) c.fillRect(x, yy, w, 1.5);
+  }
+  function concreteFloor(c, x, y, w, h, base, R){
+    c.fillStyle = rgb(base); c.fillRect(x, y, w, h);
+    for (let k = 0; k < w * h / 60; k++){
+      c.fillStyle = R() < 0.5 ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.07)';
+      c.fillRect(x + R() * w, y + R() * h, 1 + R() * 2, 1 + R() * 2);
+    }
+  }
+
+  // one-shot drop shadow on the next fill
+  let shadowNext = false;
+  function fillShape(c, fill){
+    if (shadowNext){ c.save(); c.shadowColor = 'rgba(40,30,20,.32)'; c.shadowBlur = 7; c.shadowOffsetX = 3; c.shadowOffsetY = 4; }
+    c.fillStyle = fill; c.fill();
+    if (shadowNext){ c.restore(); shadowNext = false; }
+  }
+  function rrF(c, x, y, w, h, r, fill, stroke, lw = 1.8){
+    roundRect(c, x, y, w, h, r); fillShape(c, fill);
+    if (stroke){ c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); }
+  }
+  function circF(c, x, y, r, fill, stroke, lw = 1.8){
+    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); fillShape(c, fill);
+    if (stroke){ c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); }
+  }
+  function line(c, x1, y1, x2, y2, col, lw){
+    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.stroke();
+  }
+
+  function drawFurniture(c, o){
+    const {x, y, w, h} = o, cx = x + w / 2, cy = y + h / 2;
+    const WOOD = [150,98,58], DWOOD = [112,72,42];
+    const box = (col, r = 4) => rrF(c, x, y, w, h, r, rgb(col), rgb(col, .7));
+    shadowNext = true;
+    switch (o.c){
+      case 'sofa':
+        box([126,150,136], 10);
+        rrF(c, x + 4, y + 4, w - 8, h * .32, 6, 'rgb(104,128,114)');
+        for (let k = 0; k < 3; k++) rrF(c, x + 8 + k * (w - 16) / 3, y + h * .4, (w - 16) / 3 - 4, h * .5, 6, 'rgb(142,166,152)');
+        break;
+      case 'bed':
+        box(DWOOD, 5);
+        rrF(c, x + 6, y + 6, w - 12, h - 12, 5, 'rgb(246,243,236)');
+        for (let k = 0; k < 2; k++) rrF(c, x + 12 + k * (w - 24) / 2, y + 12, (w - 24) / 2 - 8, h * .18, 8, 'rgb(255,255,252)', 'rgb(210,206,198)', 1);
+        rrF(c, x + 6, y + h * .42, w - 12, h * .58 - 6, 4, 'rgb(132,158,186)');
+        line(c, x + 6, y + h * .42, x + w - 6, y + h * .42, 'rgb(110,136,164)', 3);
+        break;
+      case 'tv':
+        box([34,34,38], 2); line(c, x + 2, y + 6, x + 2, y + h - 6, 'rgb(90,96,110)', 2); break;
+      case 'lamp':
+        circF(c, cx, cy, w / 2, 'rgb(240,222,170)', 'rgb(176,150,96)'); circF(c, cx, cy, w / 6, 'rgb(176,150,96)'); break;
+      case 'plant':
+        circF(c, cx, cy, w / 2, 'rgb(178,96,64)');
+        for (let k = 0; k < 7; k++){ const a = k * 2 * Math.PI / 7; circF(c, cx + Math.cos(a) * w * .28, cy + Math.sin(a) * w * .28, w * .26, 'rgb(70,132,70)'); }
+        circF(c, cx, cy, w * .18, 'rgb(92,156,88)'); break;
+      case 'fridge':
+        rrF(c, x, y, w, h, 3, 'rgb(232,234,236)', 'rgb(150,154,160)');
+        line(c, x + 3, y + h * .35, x + w - 3, y + h * .35, 'rgb(160,164,170)', 2);
+        line(c, x + w - 10, y + 8, x + w - 10, y + h * .3, 'rgb(120,124,130)', 3); break;
+      case 'stove':
+        rrF(c, x, y, w, h, 3, 'rgb(208,210,212)', 'rgb(120,122,126)');
+        for (const i of [.28,.72]) for (const j of [.3,.72]){ c.beginPath(); c.arc(x + w * i, y + h * j, w * .14, 0, 7); c.strokeStyle = 'rgb(48,48,52)'; c.lineWidth = 2; c.stroke(); }
+        break;
+      case 'table': case 'desk':
+        box(o.c === 'table' ? [170,120,74] : [132,88,52]);
+        for (let k = 1; k < 4; k++) line(c, x + 6, y + h * k / 4, x + w - 6, y + h * k / 4, 'rgba(90,55,25,.35)', 1);
+        if (o.c === 'desk') rrF(c, x + w * .35, y + h * .2, w * .3, h * .35, 3, 'rgb(40,42,48)');
+        break;
+      case 'chair': box(WOOD, 6); rrF(c, x + 3, y + 3, w - 6, h * .22, 4, rgb(DWOOD)); break;
+      case 'stool': circF(c, cx, cy, w / 2, rgb(WOOD), rgb(DWOOD)); break;
+      case 'shelf': case 'wardrobe': case 'cabinet': {
+        box(o.c === 'cabinet' ? WOOD : DWOOD, 3);
+        const n = o.c === 'shelf' ? 5 : 2;
+        for (let k = 1; k < n; k++){
+          if (h > w) line(c, x + 3, y + h * k / n, x + w - 3, y + h * k / n, 'rgb(84,52,30)', 2);
+          else line(c, x + w * k / n, y + 3, x + w * k / n, y + h - 3, 'rgb(84,52,30)', 2);
+        }
+        break; }
+      case 'sink':
+        rrF(c, x, y, w, h, 4, 'rgb(222,222,218)', 'rgb(150,150,146)');
+        c.beginPath(); c.ellipse(cx, cy, w * .32, h * .3, 0, 0, 7); c.fillStyle = '#fafafa'; c.fill(); c.strokeStyle = 'rgb(160,164,168)'; c.lineWidth = 2; c.stroke(); break;
+      case 'tub':
+        rrF(c, x, y, w, h, 14, 'rgb(250,250,250)', 'rgb(160,164,168)'); rrF(c, x + 8, y + 8, w - 16, h - 16, 12, 'rgb(214,232,240)'); break;
+      case 'car':
+        box([44,72,110], 22);
+        rrF(c, x + w * .2, y + 8, w * .22, h - 16, 8, 'rgb(150,186,210)');
+        rrF(c, x + w * .58, y + 8, w * .16, h - 16, 8, 'rgb(150,186,210)');
+        for (const i of [.18,.78]) for (const yy of [y - 4, y + h - 6]) rrF(c, x + w * i, yy, w * .1, 10, 3, 'rgb(30,30,32)');
+        break;
+      case 'toolbox': box([190,50,44], 3); line(c, x + w * .3, cy, x + w * .7, cy, 'rgb(60,20,18)', 3); break;
+      case 'coatrack':
+        circF(c, cx, cy, w / 2, rgb(DWOOD));
+        for (let k = 0; k < 4; k++){ const a = k * Math.PI / 2 + Math.PI / 4; line(c, cx, cy, cx + Math.cos(a) * w * .7, cy + Math.sin(a) * w * .7, rgb(DWOOD), 3); }
+        break;
+      case 'ottoman': box([212,162,76], 10); rrF(c, x + 6, y + 6, w - 12, h - 12, 8, 'rgb(226,180,98)'); break;
+      case 'umbrella': circF(c, cx, cy, w / 2, 'rgb(60,64,72)'); circF(c, cx, cy, w / 4, 'rgb(140,60,70)'); break;
+      case 'bin': circF(c, cx, cy, w / 2, 'rgb(140,146,150)'); c.beginPath(); c.arc(cx, cy, w / 2 - 4, 0, 7); c.strokeStyle = 'rgb(110,116,120)'; c.lineWidth = 2; c.stroke(); break;
+      case 'printer': rrF(c, x, y, w, h, 3, 'rgb(226,226,224)', 'rgb(140,140,138)'); rrF(c, x + w * .2, y + h * .55, w * .6, h * .18, 2, 'rgb(60,60,62)'); break;
+      case 'box': box([200,162,112], 2); line(c, cx, y + 2, cx, y + h - 2, 'rgb(232,214,170)', 4); break;
+      case 'basket':
+        box([200,166,106], 8);
+        for (let k = 1; k < 5; k++){ line(c, x + w * k / 5, y + 4, x + w * k / 5, y + h - 4, 'rgb(160,124,70)', 1); line(c, x + 4, y + h * k / 5, x + w - 4, y + h * k / 5, 'rgb(160,124,70)', 1); }
+        break;
+      case 'heater':
+        rrF(c, x, y, w, h, 3, 'rgb(244,244,242)', 'rgb(150,150,148)');
+        for (let k = 1; k < 5; k++) line(c, x + w * k / 5, y + 4, x + w * k / 5, y + h - 4, 'rgb(226,116,60)', 2);
+        break;
+      case 'bike':
+        shadowNext = false;
+        for (const i of [.2,.8]){ c.beginPath(); c.arc(x + w * i, cy, h * .45, 0, 7); c.strokeStyle = 'rgb(50,52,56)'; c.lineWidth = 3; c.stroke(); }
+        line(c, x + w * .2, cy, x + w * .5, y + h * .25, 'rgb(180,40,40)', 4);
+        line(c, x + w * .5, y + h * .25, x + w * .8, cy, 'rgb(180,40,40)', 4);
+        line(c, x + w * .35, cy, x + w * .62, cy, 'rgb(180,40,40)', 4); break;
+      case 'crate':
+        box([184,138,84], 2);
+        for (let k = 1; k < 4; k++) line(c, x + 3, y + h * k / 4, x + w - 3, y + h * k / 4, 'rgb(140,100,58)', 2);
+        break;
+      case 'bench':
+        box(WOOD, 3);
+        for (let k = 1; k < 3; k++) line(c, x + 3, y + h * k / 3, x + w - 3, y + h * k / 3, rgb(DWOOD), 2);
+        break;
+      default: box([180,170,160]);
+    }
+    shadowNext = false;
+  }
+
+  const houseC = off(), houseX = houseC.getContext('2d');   // full colour
+  const dimC   = off(), dimX   = dimC.getContext('2d');     // greyed out (not yet observed)
+  const wallC  = off(), wallX  = wallC.getContext('2d');    // walls, doors, labels
+  (function buildHouse(){
+    const c = houseX, R = rng(3);
+    c.fillStyle = '#eee9e1'; c.fillRect(0, 0, W, H);
+    woodFloor(c, OUTER.x, OUTER.y, OUTER.w, OUTER.h, [214,190,152], R, false);   // hallways
+    const looks = {'Living room':['wood',[176,124,78]], 'Bedroom':['wood',[190,142,96]], 'Study':['wood',[160,110,70]],
+                   'Kitchen':['tile',[236,232,222]], 'Bathroom':['tile',[214,228,232]], 'Garage':['concrete',[196,194,188]]};
     for (const r of ROOMS){
-      const bottomDoor = r.doors.some(d => d.s === 't');
-      c.fillText(r.name, r.x + 16, bottomDoor ? r.y + r.h - 16 : r.y + 30);
+      const [kind, base] = looks[r.name];
+      if (kind === 'wood') woodFloor(c, r.x, r.y, r.w, r.h, base, R, r.name === 'Study');
+      else if (kind === 'tile') tileFloor(c, r.x, r.y, r.w, r.h, base);
+      else concreteFloor(c, r.x, r.y, r.w, r.h, base, R);
     }
-    c.fillStyle = `rgba(${INK},.3)`;
-    c.font = `italic 16px ${FONT}`;
-    c.fillText('hallway', 725, 405);
-    c.save(); c.translate(527, 640); c.rotate(-Math.PI / 2); c.fillText('hallway', 0, 0); c.restore();
-    c.save(); c.translate(1083, 200); c.rotate(-Math.PI / 2); c.fillText('hallway', 0, 0); c.restore();
+    for (const [x, y, w, h, col] of [[95,140,230,150,[150,72,60]], [60,590,250,170,[96,118,140]]]){
+      rrF(c, x, y, w, h, 6, rgb(col));
+      roundRect(c, x + 8, y + 8, w - 16, h - 16, 4); c.strokeStyle = rgb(col.map(v => Math.min(255, v + 35))); c.lineWidth = 2; c.stroke();
+    }
+    for (const o of OBJECT_DEFS) drawFurniture(c, o);
+
+    // greyed-out copy for unexplored space
+    dimX.drawImage(houseC, 0, 0);
+    const img = dimX.getImageData(0, 0, W, H), d = img.data;
+    for (let i = 0; i < d.length; i += 4){
+      const g = (d[i] + d[i + 1] + d[i + 2]) / 3 * 0.42;
+      d[i] = g + 124; d[i + 1] = g + 124; d[i + 2] = g + 123;
+    }
+    dimX.putImageData(img, 0, 0);
+
+    // walls: white with a dark edge; open doors with wooden leaves
+    const wc = wallX;
+    for (const [t, col] of [[7, 'rgb(132,124,114)'], [4.6, 'rgb(251,250,247)']]){
+      wc.fillStyle = col;
+      for (const s of WALLS){
+        if (s.y1 === s.y2) wc.fillRect(Math.min(s.x1, s.x2) - t, s.y1 - t, Math.abs(s.x2 - s.x1) + 2 * t, 2 * t);
+        else wc.fillRect(s.x1 - t, Math.min(s.y1, s.y2) - t, 2 * t, Math.abs(s.y2 - s.y1) + 2 * t);
+      }
+    }
+    for (const r of ROOMS) for (const dr of r.doors){
+      const Rr = dr.b - dr.a; let hx, hy, a0, a1, lx, ly;
+      if (dr.s === 't'){ hx = dr.a; hy = r.y;       a0 = 0;            a1 = Math.PI / 2; lx = 0;  ly = 1; }
+      if (dr.s === 'b'){ hx = dr.a; hy = r.y + r.h; a0 = -Math.PI / 2; a1 = 0;           lx = 0;  ly = -1; }
+      if (dr.s === 'l'){ hx = r.x; hy = dr.a;       a0 = 0;            a1 = Math.PI / 2; lx = 1;  ly = 0; }
+      if (dr.s === 'r'){ hx = r.x + r.w; hy = dr.a; a0 = Math.PI / 2;  a1 = Math.PI;     lx = -1; ly = 0; }
+      wc.beginPath(); wc.arc(hx, hy, Rr, a0, a1); wc.strokeStyle = 'rgba(120,112,104,.55)'; wc.lineWidth = 1; wc.stroke();
+      line(wc, hx, hy, hx + lx * Rr, hy + ly * Rr, 'rgb(150,118,84)', 3);
+    }
+  })();
+
+  function drawRoomLabels(c){
+    c.save();
+    c.fillStyle = `rgba(${DARK},.85)`;
+    c.font = `italic 20px ${FONT}`;
+    for (const r of ROOMS){
+      const topDoor = r.doors.some(d => d.s === 't');
+      c.fillText(r.name, r.x + 16, topDoor ? r.y + r.h - 16 : r.y + 30);
+    }
     c.restore();
   }
   function drawScaleBar(c){
     c.save();
     const x = 40, y = 788;
-    c.strokeStyle = `rgba(${INK},.7)`; c.lineWidth = 1.5;
+    c.strokeStyle = `rgba(${DARK},.85)`; c.lineWidth = 1.5;
     c.beginPath(); c.moveTo(x, y); c.lineTo(x + PX_PER_M, y);
     c.moveTo(x, y - 5); c.lineTo(x, y + 1); c.moveTo(x + PX_PER_M, y - 5); c.lineTo(x + PX_PER_M, y + 1); c.stroke();
-    c.fillStyle = `rgba(${INK},.7)`; c.font = `italic 14px ${FONT}`;
+    c.fillStyle = `rgba(${DARK},.85)`; c.font = `italic 14px ${FONT}`;
     c.fillText('1 m', x + PX_PER_M + 8, y + 4);
     c.restore();
-  }
-  function drawObjects(c, objs, bright){
-    for (const o of objs){
-      c.lineWidth = 1.4;
-      c.fillStyle = bright ? `rgba(${INK},.16)` : `rgba(${INK},.04)`;
-      c.strokeStyle = bright ? `rgba(${INK},.8)` : `rgba(${INK},.16)`;
-      c.fillRect(o.x, o.y, o.w, o.h);
-      c.strokeRect(o.x + .5, o.y + .5, o.w - 1, o.h - 1);
-    }
   }
   function drawRegions(c, objs){
     for (const o of objs){
@@ -983,28 +1146,36 @@
       const set = labelSet(o), pad = padOf(o), single = set.length === 1, col = single ? GREEN : RED;
       const f = ambiguity(o);
       c.save();
-      if (!single && f > 0.05) c.filter = `blur(${(f * 4).toFixed(1)}px)`;
+      if (!single && f > 0.05) c.filter = `blur(${(0.4 + f * 1.5).toFixed(1)}px)`;
       roundRect(c, o.x - pad, o.y - pad, o.w + 2 * pad, o.h + 2 * pad, pad);
-      c.fillStyle = `rgba(${col},${single ? .09 : .13})`;
+      c.fillStyle = `rgba(${col},${single ? .12 : .16})`;
       c.fill();
-      c.setLineDash(single ? [] : [7, 5]);
-      c.lineWidth = 1.6;
+      c.setLineDash(single ? [] : [9, 6]);
+      c.lineWidth = 2;
       c.strokeStyle = `rgba(${col},.9)`;
       c.stroke();
       c.restore();
     }
-    // set labels on top, unblurred
+    // prediction-set labels, nudged apart when they collide
     c.save();
     c.font = `italic 15px ${FONT}`;
+    const placed = [];
+    const hit = (x0, x1, y0, y1) => placed.some(b => !(x1 < b[0] || x0 > b[1] || y1 < b[2] || y0 > b[3]));
     for (const o of objs){
       if (!o.seen) continue;
-      const set = labelSet(o), pad = padOf(o), single = set.length === 1;
+      const set = labelSet(o), pad = padOf(o), single = set.length === 1, col = single ? GREEN : RED;
       const txt = '{' + set.map(k => CLASSES[k].label).join(', ') + '}';
-      c.fillStyle = `rgba(${single ? GREEN : RED},.98)`;
-      let tx = o.x - pad + 6, ty = o.y - pad - 7;
-      if (ty < 18) ty = o.y + o.h + pad + 17;
       const w = c.measureText(txt).width;
-      tx = Math.max(6, Math.min(W - w - 6, tx));
+      const tx = Math.max(6, Math.min(W - w - 10, o.x - pad + 6));
+      let cands = [o.y - pad - 8, o.y + o.h + pad + 20, o.y - 8, o.y + o.h + 20].filter(v => v >= 18 && v <= H - 4);
+      if (!cands.length) cands = [o.y - 8];
+      let ty = cands.find(v => !hit(tx - 5, tx + w + 5, v - 15, v + 5));
+      if (ty === undefined){ ty = cands[0]; while (hit(tx - 5, tx + w + 5, ty - 15, ty + 5) && ty < H - 4) ty += 22; }
+      placed.push([tx - 5, tx + w + 5, ty - 15, ty + 5]);
+      roundRect(c, tx - 5, ty - 15, w + 10, 21, 4);
+      c.fillStyle = 'rgba(255,255,255,.86)'; c.fill();
+      c.strokeStyle = `rgba(${col},.6)`; c.lineWidth = 1; c.stroke();
+      c.fillStyle = `rgb(${col})`;
       c.fillText(txt, tx, ty);
     }
     c.restore();
@@ -1013,15 +1184,18 @@
     c.save();
     S.goals.forEach((g, i) => {
       const active = i === S.gi, done = i < S.gi;
-      c.strokeStyle = `rgba(${GREEN},${active ? .95 : done ? .5 : .45})`;
-      c.lineWidth = 1.6;
-      c.beginPath(); c.arc(g.x, g.y, 12, 0, Math.PI * 2); c.stroke();
+      const a = active ? 1 : .55;
+      c.beginPath(); c.arc(g.x, g.y, 12, 0, Math.PI * 2);
+      c.fillStyle = '#fff'; c.fill();
+      c.strokeStyle = `rgba(${GREEN},${a})`; c.lineWidth = 2; c.stroke();
       c.beginPath(); c.moveTo(g.x - 5, g.y); c.lineTo(g.x + 5, g.y); c.moveTo(g.x, g.y - 5); c.lineTo(g.x, g.y + 5); c.stroke();
-      c.fillStyle = `rgba(${GREEN},${active ? .95 : .55})`;
-      c.font = `italic 16px ${FONT}`;
-      c.fillText('π', g.x + 16, g.y + 5);
-      c.font = `italic 11px ${FONT}`;
-      c.fillText(g.ap, g.x + 25, g.y + 9);
+      if (done){ c.beginPath(); c.arc(g.x, g.y, 4.5, 0, 7); c.fillStyle = `rgba(${GREEN},${a})`; c.fill(); }
+      c.font = `italic 17px ${FONT}`;
+      const w1 = c.measureText('π').width; c.font = `italic 11px ${FONT}`; const w2 = c.measureText(g.ap).width;
+      roundRect(c, g.x + 14, g.y - 13, w1 + w2 + 10, 22, 4); c.fillStyle = 'rgba(255,255,255,.82)'; c.fill();
+      c.fillStyle = `rgba(${GREEN},${active ? 1 : .7})`;
+      c.font = `italic 17px ${FONT}`; c.fillText('π', g.x + 18, g.y + 4);
+      c.font = `italic 11px ${FONT}`; c.fillText(g.ap, g.x + 19 + w1, g.y + 8);
     });
     c.restore();
   }
@@ -1029,11 +1203,11 @@
     const T = S.trail;
     if (T.length < 2) return;
     c.save();
-    c.lineWidth = 2.6; c.lineCap = 'round'; c.lineJoin = 'round';
+    c.lineWidth = 3.4; c.lineCap = 'round'; c.lineJoin = 'round';
     let i = 0;
     while (i < T.length - 1){
       const m = T[i + 1].m;
-      c.strokeStyle = `rgba(${m === 'explore' ? RED : GREEN},.85)`;
+      c.strokeStyle = `rgb(${m === 'explore' ? RED : GREEN})`;
       c.beginPath(); c.moveTo(T[i].x, T[i].y);
       while (i < T.length - 1 && T[i + 1].m === m){ i++; c.lineTo(T[i].x, T[i].y); }
       c.stroke();
@@ -1043,8 +1217,8 @@
   function drawPlan(c, S){
     if (!S.path.length) return;
     c.save();
-    c.setLineDash([6, 6]); c.lineWidth = 1.6;
-    c.strokeStyle = `rgba(${S.mode === 'explore' ? RED : GREEN},.6)`;
+    c.setLineDash([9, 7]); c.lineWidth = 2;
+    c.strokeStyle = `rgba(${S.mode === 'explore' ? RED : GREEN},.85)`;
     c.beginPath(); c.moveTo(S.robot.x, S.robot.y);
     for (const p of S.path) c.lineTo(p.x, p.y);
     c.stroke();
@@ -1052,57 +1226,40 @@
   }
   function drawRobot(c, S, now){
     const {x, y} = S.robot, s = S.sigma * (1 + Math.sin(now / 500) * 0.04);
-    c.save();
-    c.filter = `blur(${(s * 0.45).toFixed(1)}px)`;
-    const g = c.createRadialGradient(x, y, 0, x, y, s * 2.4);
-    g.addColorStop(0, `rgba(${INK},.95)`);
-    g.addColorStop(.45, `rgba(${GREEN},.55)`);
-    g.addColorStop(1, `rgba(${GREEN},0)`);
-    c.fillStyle = g;
-    c.beginPath(); c.arc(x, y, s * 2.4, 0, Math.PI * 2); c.fill();
-    c.restore();
+    const g = c.createRadialGradient(x, y, 0, x, y, s * 3);
+    g.addColorStop(0, 'rgba(58,120,196,.55)'); g.addColorStop(.5, 'rgba(58,120,196,.25)'); g.addColorStop(1, 'rgba(58,120,196,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(x, y, s * 3, 0, Math.PI * 2); c.fill();
     c.save();
     c.translate(x, y); c.rotate(S.heading);
-    c.strokeStyle = `rgba(${INK},.75)`; c.lineWidth = 1.1;
-    c.setLineDash([3, 3]);
+    c.setLineDash([4, 4]); c.lineWidth = 1.1;
+    c.strokeStyle = 'rgba(40,60,90,.85)';
     c.beginPath(); c.ellipse(0, 0, s * 1.25, s, 0, 0, Math.PI * 2); c.stroke();
-    c.strokeStyle = `rgba(${INK},.45)`;
+    c.strokeStyle = 'rgba(60,80,110,.6)';
     c.beginPath(); c.ellipse(0, 0, s * 2.5, s * 2, 0, 0, Math.PI * 2); c.stroke();
     c.setLineDash([]);
-    c.fillStyle = `rgba(${INK},1)`;
-    c.beginPath(); c.arc(0, 0, 2.4, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(0, 0, 12, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
+    c.beginPath(); c.arc(0, 0, 10, 0, Math.PI * 2); c.fillStyle = 'rgb(44,48,56)'; c.fill();
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(9.5, 0); c.strokeStyle = 'rgb(120,220,170)'; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
     c.restore();
   }
 
   function render(now){
     const S = sim.S;
-    ctx.fillStyle = PANEL; ctx.fillRect(0, 0, W, H);
-    drawGrid(ctx);
-
-    // unknown interior: grey silhouettes
-    drawObjects(ctx, S.objs, false);
-
-    // explored interior: masked by accumulated visibility
+    // explored space in colour, the rest greyed out (walls are known a priori)
     revealFrom(S.robot.x, S.robot.y);
-    sceneX.clearRect(0, 0, W, H);
-    sceneX.fillStyle = `rgba(${GREEN},.05)`;
-    sceneX.fillRect(OUTER.x, OUTER.y, OUTER.w, OUTER.h);
-    drawObjects(sceneX, S.objs, true);
-    sceneX.save();
-    sceneX.font = `italic 13px ${FONT}`;
-    sceneX.fillStyle = `rgba(${INK},.8)`;
-    for (const o of S.objs) sceneX.fillText(o.name, o.x + 3, o.y + o.h / 2 + 4);
-    sceneX.restore();
+    ctx.drawImage(houseC, 0, 0);
+    ctx.save(); ctx.beginPath(); ctx.rect(OUTER.x, OUTER.y, OUTER.w, OUTER.h); ctx.clip();
+    ctx.drawImage(dimC, 0, 0);
     revX.clearRect(0, 0, W, H);
     revX.globalCompositeOperation = 'source-over';
     revX.drawImage(maskC, 0, 0);
     revX.globalCompositeOperation = 'source-in';
-    revX.drawImage(sceneC, 0, 0);
+    revX.drawImage(houseC, 0, 0);
     revX.globalCompositeOperation = 'source-over';
     ctx.drawImage(revC, 0, 0);
-
-    drawWalls(ctx);
-    drawLabels(ctx);
+    ctx.restore();
+    ctx.drawImage(wallC, 0, 0);
+    drawRoomLabels(ctx);
     drawRegions(ctx, S.objs);
     drawGoals(ctx, S);
     drawTrail(ctx, S);
