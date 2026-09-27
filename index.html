@@ -462,7 +462,7 @@
     {c:'wardrobe', alts:['fridge'],            x:395,  y:640, w:45,  h:110},
     {c:'sink',     alts:['stove'],             x:620,  y:485, w:80,  h:50},
     {c:'tub',      alts:['bed','person'],      x:800,  y:680, w:170, h:70},
-    {c:'car',      alts:['toolbox'],           x:1180, y:620, w:220, h:110},
+    {c:'car',      alts:['toolbox'],           x:1170, y:630, w:240, h:100},
     {c:'toolbox',  alts:['dog'],               x:1500, y:690, w:50,  h:40},
     {c:'coatrack', alts:['person'],            x:1017, y:505, w:24,  h:24},
     // clutter
@@ -475,7 +475,7 @@
     {c:'box',      alts:['cat'],               x:1330, y:280, w:34,  h:30},
     {c:'basket',   alts:['cat'],               x:300,  y:700, w:40,  h:40},
     {c:'heater',   alts:['sink'],              x:600,  y:700, w:26,  h:26},
-    {c:'bike',     alts:['person'],            x:1240, y:530, w:100, h:40},
+    {c:'bike',     alts:['person'],            x:1240, y:520, w:100, h:60},
     {c:'crate',    alts:['toolbox'],           x:1460, y:620, w:40,  h:40},
     {c:'bench',    alts:['sofa'],              x:600,  y:440, w:90,  h:22}
   ];
@@ -1027,12 +1027,29 @@
         c.beginPath(); c.ellipse(cx, cy, w * .32, h * .3, 0, 0, 7); c.fillStyle = '#fafafa'; c.fill(); c.strokeStyle = 'rgb(160,164,168)'; c.lineWidth = 2; c.stroke(); break;
       case 'tub':
         rrF(c, x, y, w, h, 14, 'rgb(250,250,250)', 'rgb(160,164,168)'); rrF(c, x + 8, y + 8, w - 16, h - 16, 12, 'rgb(214,232,240)'); break;
-      case 'car':
-        box([44,72,110], 22);
-        rrF(c, x + w * .2, y + 8, w * .22, h - 16, 8, 'rgb(150,186,210)');
-        rrF(c, x + w * .58, y + 8, w * .16, h - 16, 8, 'rgb(150,186,210)');
-        for (const i of [.18,.78]) for (const yy of [y - 4, y + h - 6]) rrF(c, x + w * i, yy, w * .1, 10, 3, 'rgb(30,30,32)');
-        break;
+      case 'car': {
+        // top-down sedan, front to the right
+        rrF(c, x, y, w, h, h * .3, 'rgb(44,72,110)');                      // shadowed body
+        for (const fx of [.13, .71]){
+          rrF(c, x + w * fx, y - h * .05, w * .15, h * .16, 4, 'rgb(28,28,30)');
+          rrF(c, x + w * fx, y + h * .89, w * .15, h * .16, 4, 'rgb(28,28,30)');
+        }
+        rrF(c, x, y, w, h, h * .3, 'rgb(44,72,110)', 'rgb(26,44,70)', 2);
+        rrF(c, x + w * .62, y - h * .09, w * .04, h * .1, 2, 'rgb(30,48,76)');
+        rrF(c, x + w * .62, y + h * .99, w * .04, h * .1, 2, 'rgb(30,48,76)');
+        line(c, x + w * .72, y + h * .18, x + w * .95, y + h * .26, 'rgb(60,92,134)', 2);
+        line(c, x + w * .72, y + h * .82, x + w * .95, y + h * .74, 'rgb(60,92,134)', 2);
+        const quad = (pts, col) => { c.beginPath(); pts.forEach(([u, v], k) => k ? c.lineTo(x + w * u, y + h * v) : c.moveTo(x + w * u, y + h * v)); c.closePath(); c.fillStyle = col; c.fill(); };
+        quad([[.54,.16],[.68,.09],[.68,.91],[.54,.84]], 'rgb(156,190,212)');
+        quad([[.19,.12],[.28,.17],[.28,.83],[.19,.88]], 'rgb(104,140,168)');
+        quad([[.28,.07],[.54,.07],[.54,.13],[.28,.13]], 'rgb(104,140,168)');
+        quad([[.28,.87],[.54,.87],[.54,.93],[.28,.93]], 'rgb(104,140,168)');
+        rrF(c, x + w * .28, y + h * .16, w * .26, h * .68, 6, 'rgb(58,90,132)');
+        for (const vy of [.1, .78]){
+          rrF(c, x + w * .955, y + h * vy, w * .03, h * .12, 2, 'rgb(250,236,170)');
+          rrF(c, x + w * .012, y + h * vy, w * .025, h * .12, 2, 'rgb(200,50,46)');
+        }
+        break; }
       case 'toolbox': box([190,50,44], 3); line(c, x + w * .3, cy, x + w * .7, cy, 'rgb(60,20,18)', 3); break;
       case 'coatrack':
         circF(c, cx, cy, w / 2, rgb(DWOOD));
@@ -1051,12 +1068,35 @@
         rrF(c, x, y, w, h, 3, 'rgb(244,244,242)', 'rgb(150,150,148)');
         for (let k = 1; k < 5; k++) line(c, x + w * k / 5, y + 4, x + w * k / 5, y + h - 4, 'rgb(226,116,60)', 2);
         break;
-      case 'bike':
+      case 'bike': {
+        // side-view bicycle
         shadowNext = false;
-        for (const i of [.2,.8]){ c.beginPath(); c.arc(x + w * i, cy, h * .45, 0, 7); c.strokeStyle = 'rgb(50,52,56)'; c.lineWidth = 3; c.stroke(); }
-        line(c, x + w * .2, cy, x + w * .5, y + h * .25, 'rgb(180,40,40)', 4);
-        line(c, x + w * .5, y + h * .25, x + w * .8, cy, 'rgb(180,40,40)', 4);
-        line(c, x + w * .35, cy, x + w * .62, cy, 'rgb(180,40,40)', 4); break;
+        c.beginPath(); c.ellipse(cx + 3, y + h - 3, w * .48, h * .1, 0, 0, 7); c.fillStyle = 'rgba(40,30,20,.18)'; c.fill();
+        const r = h * .33, ry = y + h - r - 2, rx = x + r + 2, fx = x + w - r - 2;
+        for (const hx of [rx, fx]){
+          for (let k = 0; k < 8; k++){ const a = k * Math.PI / 8;
+            line(c, hx - Math.cos(a) * r * .86, ry - Math.sin(a) * r * .86, hx + Math.cos(a) * r * .86, ry + Math.sin(a) * r * .86, 'rgb(190,194,198)', 1); }
+          c.beginPath(); c.arc(hx, ry, r * .88, 0, 7); c.strokeStyle = 'rgb(150,154,160)'; c.lineWidth = 2; c.stroke();
+          c.beginPath(); c.arc(hx, ry, r, 0, 7); c.strokeStyle = 'rgb(38,38,42)'; c.lineWidth = 4; c.stroke();
+          circF(c, hx, ry, 3, 'rgb(90,90,96)');
+        }
+        const bb = [rx + .46 * (fx - rx), ry - r * .05], st = [bb[0] - r * .38, ry - r * 1.42];
+        const sc = [st[0] + r * .06, st[1] + r * .18], ht = [fx - r * .6, ry - r * 1.32], hb = [fx - r * .47, ry - r * .9];
+        c.beginPath(); c.arc(bb[0], bb[1], r * .3, 0, 7); c.strokeStyle = 'rgb(70,70,76)'; c.lineWidth = 2; c.stroke();
+        line(c, rx, ry - r * .12, bb[0], bb[1] - r * .3, 'rgb(120,120,126)', 1);
+        line(c, rx, ry + r * .12, bb[0], bb[1] + r * .3, 'rgb(120,120,126)', 1);
+        for (const [p0, p1] of [[bb, sc], [sc, ht], [bb, hb], [[rx, ry], bb], [[rx, ry], sc], [hb, ht]]) line(c, p0[0], p0[1], p1[0], p1[1], 'rgb(178,40,40)', 4);
+        line(c, hb[0], hb[1], fx, ry, 'rgb(140,30,30)', 3);
+        line(c, sc[0], sc[1], st[0] - r * .05, st[1] - r * .2, 'rgb(60,60,64)', 3);
+        rrF(c, st[0] - r * .42, st[1] - r * .34, r * .7, r * .2, r * .1, 'rgb(30,30,32)');
+        const stem = [ht[0] + r * .04, ht[1] - r * .22];
+        line(c, ht[0], ht[1], stem[0], stem[1], 'rgb(60,60,64)', 3);
+        line(c, stem[0], stem[1], stem[0] + r * .38, stem[1] + r * .06, 'rgb(40,40,44)', 3);
+        circF(c, stem[0] + r * .4, stem[1] + r * .07, 3, 'rgb(30,30,32)');
+        const ca = [bb[0] + r * .28, bb[1] + r * .22];
+        line(c, bb[0], bb[1], ca[0], ca[1], 'rgb(80,80,86)', 3);
+        rrF(c, ca[0] - r * .14, ca[1] - 2, r * .28, 4, 1, 'rgb(40,40,44)');
+        break; }
       case 'crate':
         box([184,138,84], 2);
         for (let k = 1; k < 4; k++) line(c, x + 3, y + h * k / 4, x + w - 3, y + h * k / 4, 'rgb(140,100,58)', 2);
@@ -1166,8 +1206,8 @@
       const set = labelSet(o), pad = padOf(o), single = set.length === 1, col = single ? GREEN : RED;
       const txt = '{' + set.map(k => CLASSES[k].label).join(', ') + '}';
       const w = c.measureText(txt).width;
-      const tx = Math.max(6, Math.min(W - w - 10, o.x - pad + 6));
-      let cands = [o.y - pad - 8, o.y + o.h + pad + 20, o.y - 8, o.y + o.h + 20].filter(v => v >= 18 && v <= H - 4);
+      const tx = Math.max(6, Math.min(W - w - 10, o.x + o.w / 2 - w / 2));
+      let cands = [o.y - 8, o.y + o.h + 20, o.y - pad - 8, o.y + o.h + pad + 20].filter(v => v >= 18 && v <= H - 4);
       if (!cands.length) cands = [o.y - 8];
       let ty = cands.find(v => !hit(tx - 5, tx + w + 5, v - 15, v + 5));
       if (ty === undefined){ ty = cands[0]; while (hit(tx - 5, tx + w + 5, ty - 15, ty + 5) && ty < H - 4) ty += 22; }
