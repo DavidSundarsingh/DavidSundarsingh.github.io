@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>David Smith Sundarsingh</title>
+<meta name="description" content="Ph.D. student at Washington University in St. Louis working on provably safe planning and task interpretation for robots, using conformal prediction to quantify the uncertainty of AI-enabled perception and foundation models.">
+<meta name="author" content="David Smith Sundarsingh">
+<meta name="theme-color" content="#0b271d">
+<link rel="canonical" href="https://davidsundarsingh.github.io/">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="apple-touch-icon" href="assets/profile.jpg">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://davidsundarsingh.github.io/">
+<meta property="og:title" content="David Smith Sundarsingh">
+<meta property="og:description" content="Ph.D. student at Washington University in St. Louis working on provably safe planning and task interpretation for robots, using conformal prediction to quantify the uncertainty of AI-enabled perception and foundation models.">
+<meta property="og:image" content="https://davidsundarsingh.github.io/assets/profile.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="David Smith Sundarsingh">
+<meta name="twitter:description" content="Ph.D. student at Washington University in St. Louis working on provably safe planning and task interpretation for robots, using conformal prediction to quantify the uncertainty of AI-enabled perception and foundation models.">
+<meta name="twitter:image" content="https://davidsundarsingh.github.io/assets/profile.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Person","name":"David Smith Sundarsingh","url":"https://davidsundarsingh.github.io/",
+ "image":"https://davidsundarsingh.github.io/assets/profile.jpg","email":"mailto:d.s.sundarsingh@wustl.edu",
+ "affiliation":{"@type":"CollegeOrUniversity","name":"Washington University in St. Louis"},
+ "sameAs":["https://scholar.google.com/citations?user=fK_ULTYAAAAJ","https://github.com/DavidSundarsingh"]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b271d;
+    --panel:#0e3024;
+    --ink:#e8eee6;
+    --ink-2:#bfd0c4;
+    --muted:#86a595;
+    --rule:rgba(232,238,230,.16);
+    --rule-strong:rgba(232,238,230,.42);
+    --green:#7ad3a5;
+    --red:#e36a5f;
+    --serif:"Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--serif);font-size:17.5px;line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    font-feature-settings:"kern","liga","onum";
+  }
+  a{color:inherit}
+  sub{font-size:.72em;line-height:0}
+  .sc{font-variant-caps:all-small-caps;letter-spacing:.06em}
+
+  /* ================= LANDING / FIGURE ================= */
+  #landing-wrap{height:175vh;position:relative}
+  #landing{
+    position:sticky;top:0;height:100vh;width:100%;
+    display:flex;align-items:center;justify-content:center;
+    will-change:opacity,transform;
+  }
+  #landing.done{pointer-events:none}
+  .stage{
+    width:min(1100px, 94vw, calc((100vh - 350px) * 2));
+    min-width:min(640px, 94vw);
+    display:flex;flex-direction:column;gap:10px;
+  }
+
+  .fig-head{
+    display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 26px;
+    border-top:1px solid var(--rule-strong);padding-top:10px;
+    font-size:16px;
+  }
+  .sym{font-style:italic;color:var(--muted);margin-right:6px}
+  select{
+    appearance:none;-webkit-appearance:none;
+    background:transparent;color:var(--ink);
+    border:0;border-bottom:1px solid var(--rule-strong);border-radius:0;
+    font:italic 16px var(--serif);padding:1px 22px 2px 2px;cursor:pointer;outline:none;
+    background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 10px) 55%,calc(100% - 6px) 55%;
+    background-size:4px 4px,4px 4px;background-repeat:no-repeat;
+  }
+  select:focus-visible{border-bottom-color:var(--green)}
+  select option{background:var(--panel);color:var(--ink);font-style:normal}
+  .phi{flex:1 1 auto;min-width:260px}
+  #phi .tok{margin:0 .12em;transition:color .3s ease}
+  #phi .tok.amb{color:var(--red)}
+  .status{font-size:14px;color:var(--muted)}
+  .pill{
+    display:inline-block;padding:0 8px;border:1px solid currentColor;border-radius:2px;
+    font-variant-caps:all-small-caps;letter-spacing:.08em;font-size:15px;line-height:1.5;
+  }
+  .pill.exploit{color:var(--green)}
+  .pill.explore{color:var(--red)}
+  .pill.idle{color:var(--muted)}
+  .qa{font-size:14px;color:var(--muted);font-style:italic;min-height:1.5em;margin-top:-4px}
+  .qa b{font-style:normal;font-weight:400;color:var(--ink-2)}
+  .qa .r{color:var(--red);font-style:normal}
+  .qa .g{color:var(--green);font-style:normal}
+
+  .figure{position:relative;border:1px solid var(--rule);background:var(--panel)}
+  canvas{display:block;width:100%;height:auto}
+
+  .legend{display:flex;flex-wrap:wrap;gap:3px 20px;font-size:13.5px;line-height:1.5;color:var(--ink-2);margin:0}
+  .legend > span{white-space:nowrap}
+  .sw{display:inline-block;width:11px;height:11px;vertical-align:-1px;margin:0 3px 0 2px;border:1.4px solid}
+  .sw.red{border-color:var(--red);background:rgba(227,106,95,.2);border-style:dashed}
+  .sw.green{border-color:var(--green);background:rgba(122,211,165,.18)}
+  .ln{display:inline-block;width:18px;height:0;vertical-align:3px;margin:0 3px 0 2px;border-top:2.5px solid}
+  .ln.red{border-color:var(--red)}
+  .ln.green{border-color:var(--green)}
+  .ln.dash{border-top:1.6px dashed var(--green);opacity:.75}
+  .sw.grey{border-color:rgba(232,238,230,.3);background:rgba(232,238,230,.05)}
+  .el{display:inline-block;width:18px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1px dashed rgba(232,238,230,.7);border-radius:50%;
+      background:radial-gradient(circle,rgba(232,238,230,.95) 0 2px,rgba(122,211,165,.45) 3px,transparent 7px)}
+  .gl{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1.5px solid var(--green);border-radius:50%;
+      background:linear-gradient(var(--green),var(--green)) center/6px 1.5px no-repeat,linear-gradient(var(--green),var(--green)) center/1.5px 6px no-repeat}
+
+  .key-wrap{border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);padding:5px 0 6px}
+  .key-head{
+    display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    font-size:13px;color:var(--muted);border-bottom:1px solid var(--rule);padding-bottom:3px;margin-bottom:3px;
+  }
+  .key{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));column-gap:18px;
+    font-size:13px;line-height:1.5;min-height:calc(6 * 1.5em);align-content:start;
+  }
+  .kr{display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden}
+  .kr .kn{color:var(--ink);min-width:4em}
+  .kr .ks{font-style:italic;flex:1;overflow:hidden;text-overflow:ellipsis}
+  .kr .kd{font-variant-numeric:tabular-nums lining-nums}
+  .kr.open .ks,.kr.open .kd{color:var(--red)}
+  .kr.res .ks,.kr.res .kd{color:var(--green)}
+  .key-empty{color:var(--muted);font-style:italic;font-size:13.5px;grid-column:1/-1}
+
+  .scroll-cue{
+    position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+    font-size:13px;color:var(--muted);font-variant-caps:all-small-caps;letter-spacing:.14em;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+  }
+  .scroll-cue i{display:block;width:1px;height:26px;background:var(--rule-strong);animation:cue 2.4s ease-in-out infinite}
+  @keyframes cue{0%,100%{opacity:.3}50%{opacity:1}}
+
+  /* ================= HOMEPAGE ================= */
+  #sheet{position:relative;z-index:1;background:var(--bg);border-top:1px solid var(--rule)}
+  main{max-width:720px;margin:0 auto;padding:84px 28px 110px}
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  .masthead{display:flex;align-items:center;gap:30px;text-align:left;margin-bottom:34px}
+  .portrait{
+    flex:0 0 auto;width:156px;height:156px;object-fit:cover;display:block;
+    border-radius:50%;border:1px solid var(--rule-strong);padding:4px;background:var(--panel);
+  }
+  .masthead-text{min-width:0}
+  @media (max-width:560px){
+    .masthead{flex-direction:column;align-items:flex-start;gap:18px}
+    .portrait{width:128px;height:128px}
+  }
+  h1{font-size:clamp(32px,4.6vw,44px);font-weight:400;letter-spacing:-.005em;line-height:1.15;margin:0 0 10px}
+  .affil{margin:0;color:var(--ink-2);font-size:16.5px;line-height:1.5}
+  .links{margin-top:16px;font-size:16px}
+  .links a{
+    text-decoration:none;color:var(--green);
+    font-variant-caps:all-small-caps;letter-spacing:.08em;
+    border-bottom:1px solid transparent;transition:border-color .2s ease;
+  }
+  .links a:hover{border-bottom-color:var(--green)}
+  .links .dot{color:var(--muted);margin:0 10px}
+
+  h2{
+    font-size:17px;font-weight:600;margin:0 0 14px;
+    font-variant-caps:all-small-caps;letter-spacing:.1em;color:var(--ink);
+    border-bottom:1px solid var(--rule);padding-bottom:6px;
+  }
+  p{margin:0 0 16px;color:var(--ink-2);text-align:justify;hyphens:auto}
+  p .cite{color:var(--green);text-decoration:none}
+  p .cite:hover{text-decoration:underline}
+
+  .epigraph{
+    margin:58px auto;max-width:560px;text-align:center;
+    font-style:italic;font-size:21px;line-height:1.5;color:var(--ink);
+  }
+  .epigraph::before,.epigraph::after{
+    content:"";display:block;width:48px;height:1px;background:var(--rule-strong);margin:0 auto;
+  }
+  .epigraph::before{margin-bottom:22px}
+  .epigraph::after{margin-top:22px}
+
+  ol.bib{list-style:none;counter-reset:bib;margin:0;padding:0}
+  ol.bib li{
+    counter-increment:bib;position:relative;padding:0 0 18px 42px;margin-bottom:18px;
+    border-bottom:1px solid var(--rule);scroll-margin-top:30px;
+  }
+  ol.bib li:last-child{border-bottom:0}
+  ol.bib li::before{
+    content:"[" counter(bib) "]";position:absolute;left:0;top:0;
+    color:var(--muted);font-variant-numeric:lining-nums;
+  }
+  .bib-title{display:block;color:var(--ink);font-size:17.5px;line-height:1.45}
+  .bib-status{display:inline-block;margin-top:5px;font-size:14px;color:var(--muted);font-style:italic;
+      border:1px solid var(--rule-strong);padding:0 7px;border-radius:2px}
+  p.bib-desc{margin:8px 0 0;font-size:16px;line-height:1.6;color:var(--ink-2)}
+  .bib-links{display:block;margin-top:8px;font-size:15px}
+  .bib-links a{color:var(--green);text-decoration:none;font-variant-caps:all-small-caps;letter-spacing:.08em}
+  .bib-links a:hover{text-decoration:underline}
+  .bib-links .br{color:var(--muted)}
+
+  footer{max-width:720px;margin:0 auto;padding:0 28px 60px;font-size:13.5px;color:var(--muted)}
+
+  @media (max-width:760px){
+    .key{grid-template-columns:repeat(2,minmax(0,1fr));min-height:calc(9 * 1.55em)}
+    body{font-size:16.5px}
+    p{text-align:left}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .scroll-cue i{animation:none}
+  }
+</style>
+</head>
+<body>
+
+<div id="landing-wrap">
+  <section id="landing" aria-label="Interactive figure">
+    <div class="stage">
+      <div class="fig-head">
+        <label class="instr"><span class="sym">ξ</span><select id="task" aria-label="Natural-language instruction">
+          <option value="kitchStudy">Go through the kitchen toward the study.</option>
+          <option value="livKitch">Go to the living room, then to the kitchen.</option>
+          <option value="tour">Visit the living room, the kitchen, then the study.</option>
+          <option value="bedBath">Go to the bedroom, then to the bathroom.</option>
+          <option value="bathGarage">Pass through the bathroom on the way to the garage.</option>
+          <option value="studyGarage">Go to the study, then to the garage.</option>
+        </select></label>
+        <div class="phi"><span class="sym">φ</span>=&nbsp;<span id="phi"></span></div>
+        <div class="status"><span id="mode" class="pill idle">idle</span></div>
+      </div>
+      <div class="qa" id="qa">&nbsp;</div>
+
+      <div class="figure">
+        <canvas id="scene" width="1600" height="800" role="img"
+          aria-label="Floor plan of a house with hallways. A robot navigates to a goal while keeping class-dependent distances from detected objects; ambiguous detections are shown in red, resolved ones in green."></canvas>
+      </div>
+
+      <p class="legend" aria-label="Legend">
+        <span><span class="sw red"></span>uncertain object (prediction set has several classes)</span>
+        <span><span class="sw green"></span>identified object (single class)</span>
+        <span><span class="sw grey"></span>not yet observed</span>
+        <span><span class="ln red"></span>exploration path</span>
+        <span><span class="ln green"></span>exploitation path</span>
+        <span><span class="ln dash"></span>planned path</span>
+        <span><span class="el"></span>robot state uncertainty</span>
+        <span><span class="gl"></span>goal</span>
+      </p>
+
+      <div class="key-wrap">
+        <div class="key-head">
+          <span>Detected objects: prediction set 𝒞<sub><i>j</i></sub> and required clearance <i>d<sub>j</sub></i> = max<sub><i>k</i>∈𝒞<sub><i>j</i></sub></sub> <i>d<sub>k</sub></i></span>
+          <span id="stats">1 − α = 0.95</span>
+        </div>
+        <div class="key" id="key"><span class="key-empty">No objects detected yet.</span></div>
+      </div>
+    </div>
+
+    <div class="scroll-cue"><span>scroll</span><i></i></div>
+  </section>
+</div>
+
+<div id="sheet">
+<main>
+  <header class="masthead reveal">
+    <img class="portrait" alt="Portrait of David Smith Sundarsingh" width="156" height="156" src="assets/profile.jpg">
+    <div class="masthead-text">
+      <h1>David Smith Sundarsingh</h1>
+      <p class="affil">Department of Electrical &amp; Systems Engineering<br>Washington University in St. Louis</p>
+      <nav class="links" aria-label="Contact">
+        <a href="mailto:d.s.sundarsingh@wustl.edu">Email</a><span class="dot">·</span><a href="https://scholar.google.com/citations?user=fK_ULTYAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a><span class="dot">·</span><a href="https://github.com/DavidSundarsingh" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="reveal">
+    <h2>About</h2>
+    <p>I am a Ph.D. student at Washington University in St. Louis, where I am advised by
+    <a class="cite" href="https://engineering.washu.edu/faculty/Yiannis-Kantaros.html" target="_blank" rel="noopener">Dr. Yiannis Kantaros</a>
+    in the Department of Electrical and Systems Engineering. My research focuses on developing provably
+    safe planning and task interpretation frameworks for uncertain systems and environments, applying
+    Conformal Prediction for rigorous uncertainty quantification for AI-enabled perception systems and
+    foundation models. Prior to my doctoral studies, I earned my Master&rsquo;s degree in Robotics and
+    Automation from the Defence Institute of Advanced Technology (DIAT), Pune in 2023, and my
+    Bachelor&rsquo;s degree in Mechanical Engineering from the Coimbatore Institute of Technology (CIT),
+    Coimbatore in 2020.</p>
+  </section>
+
+  <p class="epigraph reveal">Robots that reason reliably about what they are told,
+  and act safely on what they are unsure of.</p>
+
+  <section class="reveal">
+    <h2>Projects</h2>
+    <ol class="bib">
+      <li id="proj-1">
+        <span class="bib-title">Safe Planning in Unknown Environments Using Conformalized Semantic Maps</span>
+        <p class="bib-desc">This paper proposes a semantic reach-avoid planning framework for unknown environments
+        under perceptual uncertainty without requiring prior assumptions on sensor models or noise distributions.
+        By applying conformal prediction to multi-class semantic maps generated on the fly, the method constructs
+        calibrated prediction sets of semantic labels guaranteed to contain the ground truth with user-defined
+        confidence. A downstream planner adaptively balances exploitation and active exploration over these
+        conformalized maps, consistently outperforming uncertainty-agnostic and heuristically calibrated
+        baselines in mission completion rates.</p>
+        <span class="bib-links">
+          <span class="br">[</span><a href="https://ieeexplore.ieee.org/abstract/document/11417450" target="_blank" rel="noopener">paper</a><span class="br">]</span>
+          <span class="br">[</span><a href="https://github.com/kantaroslab/SafePlanning" target="_blank" rel="noopener">code</a><span class="br">]</span>
+          <span class="br">[</span><a href="https://vimeo.com/1161521936" target="_blank" rel="noopener">video</a><span class="br">]</span>
+        </span>
+      </li>
+      <li id="proj-2">
+        <span class="bib-title">ConformalNL2LTL: Translating Natural Language Instructions into Temporal Logic Formulas with Conformal Correctness Guarantees</span>
+        <p class="bib-desc">This paper introduces ConformalNL2LTL, the first framework capable of translating natural
+        language instructions into Linear Temporal Logic (LTL) specifications with user-defined correctness
+        guarantees. The translation process is framed as a sequential question-answering workflow solved
+        collaboratively by a primary and an auxiliary large language model (LLM), with conformal prediction used
+        to calibrate uncertainty and flag when to request auxiliary model or human assistance. Theoretical and
+        empirical evaluations show that the framework reliably achieves target success rates (e.g., up to 99%)
+        on unseen commands while drastically minimizing human intervention.</p>
+        <span class="bib-links">
+          <span class="br">[</span><a href="https://arxiv.org/abs/2504.21022" target="_blank" rel="noopener">paper</a><span class="br">]</span>
+          <span class="br">[</span><a href="https://github.com/kantaroslab/ConformalNL2LTL" target="_blank" rel="noopener">code</a><span class="br">]</span>
+          <span class="br">[</span><a href="https://youtu.be/xnrha2hAXjY" target="_blank" rel="noopener">video</a><span class="br">]</span>
+        </span>
+      </li>
+      <li id="proj-3">
+        <span class="bib-title">Safe Multi-Robot Navigation under Uncertainty with User-Specified Risk Budgets</span>
+        <span class="bib-status">Ongoing work</span>
+        <p class="bib-desc">This paper introduces an iterative, two-stage planning framework that guarantees
+        multi-agent safe navigation under stochastic system disturbances while satisfying an explicit,
+        user-defined global risk budget. The proposed approach decomposes joint chance constraints into
+        individual obstacle, boundary, and inter-agent components, using collision risk as a merit metric to
+        dynamically redistribute risk across robots and time steps. Extensive simulations and real-world
+        multi-drone experiments demonstrate that the planner adaptively adjusts trajectory conservatism to match
+        disturbance levels and reliably keeps empirical collision risk below the specified threshold.</p>
+      </li>
+    </ol>
+  </section>
+</main>
+
+<footer>&copy; 2026 David Smith Sundarsingh</footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ================= scroll fade ================= */
+  const landing = document.getElementById('landing');
+  const cue = document.querySelector('.scroll-cue');
+  let ticking = false;
+  function onScroll(){
+    const vh = window.innerHeight;
+    const t = Math.min(Math.max(window.scrollY / (vh * 0.95), 0), 1);
+    const e = t * t;
+    landing.style.opacity = String(1 - e);
+    landing.style.transform = `scale(${1 - e * 0.05}) translateY(${-e * 34}px)`;
+    landing.style.filter = `blur(${e * 5}px)`;
+    landing.classList.toggle('done', t > 0.98);
+    if (cue) cue.style.opacity = String(Math.max(0, 1 - t * 3));
+    ticking = false;
+  }
+  window.addEventListener('scroll', () => {
+    if (!ticking){ ticking = true; requestAnimationFrame(onScroll); }
+  }, {passive:true});
+  onScroll();
+
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }), {threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+/*SIM-START*/
+  /* ============================================================
+     Simulation core (no DOM). Faithful to Alg. 2 of [1]:
+     - objects are unknown until sensed; walls are a known prior map
+     - each detected object j carries a conformal label set C_j
+     - the planner assigns k_j = argmax_{k in C_j} d_k and requires
+         || x - c_j || >= d_{k_j} + r_m          (eq. 6 of [1])
+     - exploitation: A* over the conservative map
+     - exploration: if no path exists, move to shrink an unresolved C_j
+     ============================================================ */
+  const W = 1600, H = 800;
+  const PX_PER_M = 80;                 // 1 m = 80 px
+  const CELL = 8;                      // grid resolution
+  const R_M = CELL;                    // r_m in eq. (6)
+  const ROBOT_R = 20;                  // robot body + 2σ state-uncertainty envelope
+  const WALL_D = 0.10 * PX_PER_M;      // wall clearance
+  const WALL_REQ = WALL_D + R_M + ROBOT_R;
+  const R_SENSE = 290;                 // camera range (line of sight)
+  const R_PROX = 150;                  // short-range omnidirectional detection (Assumption II.2)
+  const SPAN = 90;                     // range over which alternative labels are ruled out
+  const SPEED = 1.7;                   // px per step (≈1.3 m/s)
+  const START = {x:70, y:400};
+  const OUTER = {x:30, y:30, w:1540, h:740};
+
+  const ROOMS = [
+    {name:'Living room', x:30,   y:30,  w:427, h:305, doors:[{s:'b', a:300,  b:400}]},
+    {name:'Kitchen',     x:587,  y:30,  w:426, h:305, doors:[{s:'b', a:820,  b:920}, {s:'l', a:180, b:280}]},
+    {name:'Study',       x:1143, y:30,  w:427, h:305, doors:[{s:'l', a:200,  b:300}, {s:'b', a:1400, b:1500}]},
+    {name:'Bedroom',     x:30,   y:465, w:427, h:305, doors:[{s:'t', a:300,  b:400}]},
+    {name:'Bathroom',    x:587,  y:465, w:426, h:305, doors:[{s:'r', a:560,  b:660}]},
+    {name:'Garage',      x:1143, y:465, w:427, h:305, doors:[{s:'t', a:1350, b:1450}]}
+  ];
+
+  // class-dependent safety distances d_k (metres) -- every class distinct
+  const CLASSES = {
+    person:   {d:1.20, label:'person'},
+    car:      {d:1.00, label:'car'},
+    dog:      {d:0.90, label:'dog'},
+    stove:    {d:0.80, label:'stove'},
+    fireplace:{d:0.75, label:'fireplace'},
+    lamp:     {d:0.45, label:'lamp'},
+    fridge:   {d:0.40, label:'fridge'},
+    tub:      {d:0.38, label:'bathtub'},
+    sink:     {d:0.35, label:'sink'},
+    bed:      {d:0.33, label:'bed'},
+    sofa:     {d:0.30, label:'sofa'},
+    tv:       {d:0.28, label:'tv'},
+    chair:    {d:0.26, label:'chair'},
+    table:    {d:0.24, label:'table'},
+    desk:     {d:0.22, label:'desk'},
+    wardrobe: {d:0.20, label:'wardrobe'},
+    shelf:    {d:0.18, label:'shelf'},
+    toolbox:  {d:0.16, label:'toolbox'},
+    plant:    {d:0.14, label:'plant'},
+    coatrack: {d:0.12, label:'coat rack'},
+    heater:   {d:0.85, label:'heater'},
+    cat:      {d:0.70, label:'cat'},
+    bike:     {d:0.50, label:'bike'},
+    printer:  {d:0.29, label:'printer'},
+    bench:    {d:0.27, label:'bench'},
+    ottoman:  {d:0.23, label:'ottoman'},
+    cabinet:  {d:0.21, label:'cabinet'},
+    bin:      {d:0.19, label:'bin'},
+    basket:   {d:0.17, label:'basket'},
+    stool:    {d:0.15, label:'stool'},
+    box:      {d:0.13, label:'box'},
+    crate:    {d:0.11, label:'crate'},
+    umbrella: {d:0.09, label:'umbrella stand'}
+  };
+
+  // c: ground-truth class; alts: labels that stay in C_j until the object is observed up close
+  const OBJECT_DEFS = [
+    {c:'lamp',     alts:['person','coatrack'], x:45,   y:45,  w:24,  h:24},
+    {c:'sofa',     alts:['bed'],               x:110,  y:60,  w:180, h:60},
+    {c:'tv',       alts:['fireplace'],         x:425,  y:60,  w:18,  h:100},
+    {c:'plant',    alts:['dog'],               x:70,   y:200, w:36,  h:36},
+    {c:'fridge',   alts:['stove'],             x:605,  y:45,  w:70,  h:90},
+    {c:'stove',    alts:['sink'],              x:925,  y:45,  w:70,  h:70},
+    {c:'table',    alts:['desk','chair'],      x:690,  y:140, w:150, h:70},
+    {c:'desk',     alts:['table'],             x:1230, y:50,  w:190, h:70},
+    {c:'chair',    alts:['dog'],               x:1250, y:200, w:50,  h:50},
+    {c:'shelf',    alts:['wardrobe','fridge'], x:1520, y:150, w:36,  h:150},
+    {c:'bed',      alts:['person'],            x:70,   y:600, w:200, h:140},
+    {c:'wardrobe', alts:['fridge'],            x:395,  y:640, w:45,  h:110},
+    {c:'sink',     alts:['stove'],             x:620,  y:485, w:80,  h:50},
+    {c:'tub',      alts:['bed','person'],      x:800,  y:680, w:170, h:70},
+    {c:'car',      alts:['toolbox'],           x:1180, y:620, w:220, h:110},
+    {c:'toolbox',  alts:['dog'],               x:1500, y:690, w:50,  h:40},
+    {c:'coatrack', alts:['person'],            x:1017, y:505, w:24,  h:24},
+    // clutter
+    {c:'ottoman',  alts:['dog'],               x:170,  y:165, w:50,  h:40},
+    {c:'cabinet',  alts:['fridge'],            x:60,   y:280, w:90,  h:35},
+    {c:'umbrella', alts:['person'],            x:548,  y:60,  w:26,  h:26},
+    {c:'bin',      alts:['dog'],               x:960,  y:250, w:30,  h:30},
+    {c:'stool',    alts:['chair'],             x:860,  y:160, w:26,  h:26},
+    {c:'printer',  alts:['stove'],             x:1160, y:50,  w:50,  h:40},
+    {c:'box',      alts:['cat'],               x:1330, y:280, w:34,  h:30},
+    {c:'basket',   alts:['cat'],               x:300,  y:700, w:40,  h:40},
+    {c:'heater',   alts:['sink'],              x:600,  y:700, w:26,  h:26},
+    {c:'bike',     alts:['person'],            x:1240, y:530, w:100, h:40},
+    {c:'crate',    alts:['toolbox'],           x:1460, y:620, w:40,  h:40},
+    {c:'bench',    alts:['sofa'],              x:600,  y:440, w:90,  h:22}
+  ];
+
+  const piAP = s => ['π:' + s];
+  const SAFE = [['∧'], ['□'], piAP('safe')];
+  const GOAL = {
+    kitchen:{x:740, y:290}, living:{x:340, y:220}, bedroom:{x:330, y:560},
+    bathroom:{x:900, y:590}, study:{x:1420, y:230}, garage:{x:1500, y:550}
+  };
+  // sequenced reach task:  ◇(π_a ∧ ◇(π_b ∧ ◇ π_c)) ∧ □ π_safe
+  // amb = {index of QA step: extra labels in the primary LLM's prediction set}
+  function seqTask(aps, amb = {}){
+    const phi = [];
+    aps.forEach((a, i) => {
+      phi.push(['◇']);
+      if (i < aps.length - 1) phi.push(['(']);
+      phi.push(piAP(a));
+      if (i < aps.length - 1) phi.push(['∧']);
+    });
+    for (let i = 0; i < aps.length - 1; i++) phi.push([')']);
+    phi.push(...SAFE);
+    for (const [k, extra] of Object.entries(amb)) phi[+k] = [...phi[+k], ...extra];
+    return {goals: aps.map(a => ({...GOAL[a], ap:a})), phi};
+  }
+  const TASKS = {
+    livKitch:    seqTask(['living', 'kitchen'],           {4: ['□']}),
+    kitchStudy:  seqTask(['kitchen', 'study']),
+    tour:        seqTask(['living', 'kitchen', 'study'],  {3: ['∨']}),
+    bedBath:     seqTask(['bedroom', 'bathroom']),
+    bathGarage:  seqTask(['bathroom', 'garage'],          {4: ['□']}),
+    studyGarage: seqTask(['study', 'garage'])
+  };
+
+  /* ---------- geometry ---------- */
+  const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+
+  function buildWalls(){
+    const o = OUTER, segs = [];
+    segs.push({x1:o.x, y1:o.y, x2:o.x+o.w, y2:o.y}, {x1:o.x+o.w, y1:o.y, x2:o.x+o.w, y2:o.y+o.h},
+              {x1:o.x, y1:o.y+o.h, x2:o.x+o.w, y2:o.y+o.h}, {x1:o.x, y1:o.y, x2:o.x, y2:o.y+o.h});
+    const onOuter = (s, r) => (s==='t' && r.y===o.y) || (s==='b' && r.y+r.h===o.y+o.h) ||
+                              (s==='l' && r.x===o.x) || (s==='r' && r.x+r.w===o.x+o.w);
+    for (const r of ROOMS){
+      for (const s of ['t','b','l','r']){
+        if (onOuter(s, r)) continue;
+        const horiz = s==='t' || s==='b';
+        const fixed = s==='t' ? r.y : s==='b' ? r.y+r.h : s==='l' ? r.x : r.x+r.w;
+        const lo = horiz ? r.x : r.y, hi = horiz ? r.x+r.w : r.y+r.h;
+        const add = (a, b) => segs.push(horiz ? {x1:a, y1:fixed, x2:b, y2:fixed} : {x1:fixed, y1:a, x2:fixed, y2:b});
+        let cur = lo;
+        for (const d of r.doors.filter(d => d.s===s).sort((p,q) => p.a-q.a)){ if (d.a > cur) add(cur, d.a); cur = d.b; }
+        if (cur < hi) add(cur, hi);
+      }
+    }
+    return segs;
+  }
+  const WALLS = buildWalls();
+
+  function segPointDist(px, py, s){
+    const dx = s.x2-s.x1, dy = s.y2-s.y1, L = dx*dx + dy*dy;
+    let t = L ? ((px-s.x1)*dx + (py-s.y1)*dy) / L : 0;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    return Math.hypot(px - (s.x1 + t*dx), py - (s.y1 + t*dy));
+  }
+  function wallDist(px, py){
+    let m = Infinity;
+    for (const s of WALLS){ const d = segPointDist(px, py, s); if (d < m) m = d; }
+    return m;
+  }
+  const crs = (ax,ay,bx,by,cx,cy) => (bx-ax)*(cy-ay) - (by-ay)*(cx-ax);
+  function blocked(ax, ay, bx, by){
+    for (const s of WALLS){
+      const d1 = crs(s.x1,s.y1,s.x2,s.y2,ax,ay), d2 = crs(s.x1,s.y1,s.x2,s.y2,bx,by);
+      if ((d1 > 0 && d2 > 0) || (d1 < 0 && d2 < 0) || d1 === 0 || d2 === 0) continue;
+      const d3 = crs(ax,ay,bx,by,s.x1,s.y1), d4 = crs(ax,ay,bx,by,s.x2,s.y2);
+      if ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0)) return true;
+    }
+    return false;
+  }
+  function rectGap(px, py, o){
+    const dx = Math.max(o.x - px, 0, px - (o.x + o.w));
+    const dy = Math.max(o.y - py, 0, py - (o.y + o.h));
+    return Math.hypot(dx, dy);
+  }
+  function visibleObj(px, py, o){
+    const pts = [[o.x+o.w/2, o.y+o.h/2], [o.x+2, o.y+2], [o.x+o.w-2, o.y+2], [o.x+2, o.y+o.h-2], [o.x+o.w-2, o.y+o.h-2]];
+    for (const [qx, qy] of pts) if (!blocked(px, py, qx, qy)) return true;
+    return false;
+  }
+
+  /* ---------- conformal label sets ---------- */
+  function labelSet(o){
+    const n = o.altsDesc.length;
+    const f = clamp01((o.minGap - o.rRes) / SPAN);
+    const keep = Math.ceil(n * f);                 // alternatives still in C_j (largest d_k ruled out first)
+    return [o.c, ...o.altsDesc.slice(n - keep)];   // the true label is never removed
+  }
+  const padOf = o => Math.max(...labelSet(o).map(k => CLASSES[k].d)) * PX_PER_M;
+  const ambiguity = o => clamp01((o.minGap - o.rRes) / SPAN);
+
+  /* ---------- occupancy grid ---------- */
+  const GW = Math.ceil(W / CELL), GH = Math.ceil(H / CELL);
+  const ccx = i => (i + 0.5) * CELL, ccy = j => (j + 0.5) * CELL;
+  const WALL_OK = (() => {
+    const g = new Uint8Array(GW * GH);
+    for (let j = 0; j < GH; j++) for (let i = 0; i < GW; i++){
+      const x = ccx(i), y = ccy(j);
+      if (x > OUTER.x && x < OUTER.x+OUTER.w && y > OUTER.y && y < OUTER.y+OUTER.h && wallDist(x, y) >= WALL_REQ) g[j*GW+i] = 1;
+    }
+    return g;
+  })();
+  const DIRS = [[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,Math.SQRT2],[1,-1,Math.SQRT2],[-1,1,Math.SQRT2],[-1,-1,Math.SQRT2]];
+
+  function createSim(taskKey){
+    const task = TASKS[taskKey];
+    const objs = OBJECT_DEFS.map((d, id) => {
+      const altsDesc = [...d.alts].sort((a, b) => CLASSES[b].d - CLASSES[a].d);
+      const fullPad = Math.max(CLASSES[d.c].d, ...d.alts.map(a => CLASSES[a].d)) * PX_PER_M;
+      return {...d, id, name:CLASSES[d.c].label, altsDesc, fullPad, truePad:CLASSES[d.c].d * PX_PER_M,
+              rRes: fullPad + R_M + ROBOT_R + 26, minGap:Infinity, seen:false, visible:false, order:-1};
+    });
+    const S = {
+      robot:{x:START.x, y:START.y}, heading:0, sigma:5,
+      goals:task.goals, gi:0, path:[], mode:'exploit', trail:[], done:false,
+      frame:0, sig:'', retryAt:0, explorations:0, seenCount:0, objs
+    };
+
+    const req = o => padOf(o) + R_M + ROBOT_R;
+    function freePlan(x, y){
+      if (wallDist(x, y) < WALL_REQ) return false;
+      for (const o of objs) if (o.seen && rectGap(x, y, o) < req(o)) return false;
+      return true;
+    }
+    function grid(relax){
+      const g = WALL_OK.slice();
+      for (const o of objs){
+        if (!o.seen) continue;
+        // relax: optimistic check that assumes o's least-conservative label
+        const r = relax && relax.has(o) ? Math.min(...labelSet(o).map(k => CLASSES[k].d)) * PX_PER_M + R_M + ROBOT_R : req(o);
+        const i0 = Math.max(0, Math.floor((o.x - r) / CELL)), i1 = Math.min(GW-1, Math.floor((o.x + o.w + r) / CELL));
+        const j0 = Math.max(0, Math.floor((o.y - r) / CELL)), j1 = Math.min(GH-1, Math.floor((o.y + o.h + r) / CELL));
+        for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++){
+          const k = j*GW + i;
+          if (g[k] && rectGap(ccx(i), ccy(j), o) < r) g[k] = 0;
+        }
+      }
+      return g;
+    }
+    const cellOf = p => [Math.min(GW-1, Math.max(0, Math.floor(p.x / CELL))), Math.min(GH-1, Math.max(0, Math.floor(p.y / CELL)))];
+
+    function neighbours(g, k, fn){
+      const ci = k % GW, cj = (k / GW) | 0;
+      for (const [di, dj, c] of DIRS){
+        const ni = ci + di, nj = cj + dj;
+        if (ni < 0 || nj < 0 || ni >= GW || nj >= GH) continue;
+        const nk = nj*GW + ni;
+        if (!g[nk]) continue;
+        if (di && dj && (!g[cj*GW + ni] || !g[nj*GW + ci])) continue;   // no corner cutting
+        fn(nk, c, ni, nj);
+      }
+    }
+    function astar(g, s, t){
+      const N = GW * GH, start = s[1]*GW + s[0], goal = t[1]*GW + t[0];
+      if (!g[goal]) return null;
+      const gs = new Float32Array(N).fill(Infinity), par = new Int32Array(N).fill(-1), closed = new Uint8Array(N);
+      const heapK = [], heapF = [];
+      const push = (k, f) => {
+        heapK.push(k); heapF.push(f); let i = heapK.length - 1;
+        while (i > 0){ const p = (i - 1) >> 1; if (heapF[p] <= heapF[i]) break;
+          [heapK[p], heapK[i]] = [heapK[i], heapK[p]]; [heapF[p], heapF[i]] = [heapF[i], heapF[p]]; i = p; }
+      };
+      const pop = () => {
+        const top = heapK[0], lk = heapK.pop(), lf = heapF.pop();
+        if (heapK.length){ heapK[0] = lk; heapF[0] = lf; let i = 0;
+          for (;;){ const l = 2*i + 1, r = l + 1; let m = i;
+            if (l < heapK.length && heapF[l] < heapF[m]) m = l;
+            if (r < heapK.length && heapF[r] < heapF[m]) m = r;
+            if (m === i) break;
+            [heapK[m], heapK[i]] = [heapK[i], heapK[m]]; [heapF[m], heapF[i]] = [heapF[i], heapF[m]]; i = m; } }
+        return top;
+      };
+      const h = k => { const dx = Math.abs(k % GW - t[0]), dy = Math.abs(((k / GW) | 0) - t[1]);
+                       return dx + dy + (Math.SQRT2 - 2) * Math.min(dx, dy); };
+      gs[start] = 0; push(start, h(start));
+      while (heapK.length){
+        const cur = pop();
+        if (closed[cur]) continue;
+        closed[cur] = 1;
+        if (cur === goal){ const out = []; for (let k = cur; k !== -1; k = par[k]) out.push(k); return out.reverse(); }
+        neighbours(g, cur, (nk, c) => {
+          const ng = gs[cur] + c;
+          if (ng < gs[nk]){ gs[nk] = ng; par[nk] = cur; push(nk, ng + h(nk)); }
+        });
+      }
+      return null;
+    }
+    function bfs(g, s){
+      const N = GW * GH, start = s[1]*GW + s[0];
+      const dist = new Int32Array(N).fill(-1), par = new Int32Array(N).fill(-1);
+      const q = new Int32Array(N); let qh = 0, qt = 0;
+      dist[start] = 0; q[qt++] = start;
+      while (qh < qt){
+        const cur = q[qh++];
+        neighbours(g, cur, nk => { if (dist[nk] < 0){ dist[nk] = dist[cur] + 1; par[nk] = cur; q[qt++] = nk; } });
+      }
+      return {dist, par};
+    }
+
+    // Exploration: approach an unresolved object to shrink its prediction set
+    function explore(g, s){
+      const goal = S.goals[S.gi], R = S.robot;
+      const unresolved = objs.filter(o => o.seen && labelSet(o).length > 1);
+      if (!unresolved.length) return null;
+      // Which ambiguities block the goal? Plan optimistically (every unresolved
+      // object at its least-conservative label) and collect the unresolved objects
+      // that this optimistic route would pass too close to, in route order.
+      const t = cellOf(goal);
+      const opt = astar(grid(new Set(unresolved)), s, t);
+      const blockers = [];
+      if (opt) for (const k of opt){
+        const x = ccx(k % GW), y = ccy((k / GW) | 0);
+        for (const o of unresolved) if (!blockers.includes(o) && rectGap(x, y, o) < req(o)) blockers.push(o);
+      }
+      const near = o => Math.min(rectGap(R.x, R.y, o), rectGap(goal.x, goal.y, o));
+      const rest = unresolved.filter(o => !blockers.includes(o) && near(o) < 420)
+        .sort((a, b) => near(a) - near(b));
+      const cands = [...blockers, ...rest];
+      const {dist, par} = bfs(g, s);
+      for (const o of cands){
+        const ext = o.rRes + SPAN;
+        const i0 = Math.max(0, Math.floor((o.x - ext) / CELL)), i1 = Math.min(GW-1, Math.floor((o.x + o.w + ext) / CELL));
+        const j0 = Math.max(0, Math.floor((o.y - ext) / CELL)), j1 = Math.min(GH-1, Math.floor((o.y + o.h + ext) / CELL));
+        let best = -1, bg = Infinity, bd = Infinity;
+        for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++){
+          const k = j*GW + i;
+          if (dist[k] < 0) continue;
+          const gp = rectGap(ccx(i), ccy(j), o);
+          if (gp >= o.minGap - 2 || gp > R_SENSE) continue;
+          if (gp < bg - 0.5 || (Math.abs(gp - bg) <= 0.5 && dist[k] < bd)){
+            if (!visibleObj(ccx(i), ccy(j), o)) continue;
+            best = k; bg = gp; bd = dist[k];
+          }
+        }
+        if (best >= 0){ const out = []; for (let k = best; k !== -1; k = par[k]) out.push(k); return out.reverse(); }
+      }
+      return null;
+    }
+
+    function clearSeg(a, b, skipStart){
+      const L = Math.hypot(b.x - a.x, b.y - a.y), n = Math.max(1, Math.ceil(L / 3));
+      for (let k = 0; k <= n; k++){
+        const x = a.x + (b.x - a.x) * k / n, y = a.y + (b.y - a.y) * k / n;
+        if (skipStart && Math.hypot(x - a.x, y - a.y) < CELL) continue;
+        if (!freePlan(x, y)) return false;
+      }
+      return true;
+    }
+    function smooth(pts){
+      const out = [pts[0]];
+      let i = 0;
+      while (i < pts.length - 1){
+        let j = i + 1;
+        while (j + 1 < pts.length && clearSeg(pts[i], pts[j + 1], i === 0)) j++;
+        out.push(pts[j]); i = j;
+      }
+      return out;
+    }
+    function toPath(cells){
+      const pts = [{x:S.robot.x, y:S.robot.y}];
+      for (let n = 1; n < cells.length; n++) pts.push({x:ccx(cells[n] % GW), y:ccy((cells[n] / GW) | 0)});
+      if (pts.length === 1) return [];
+      return smooth(pts).slice(1);
+    }
+
+    function replan(){
+      const g = grid(), s = cellOf(S.robot), t = cellOf(S.goals[S.gi]);
+      const cells = astar(g, s, t);
+      if (cells){ S.mode = 'exploit'; S.path = toPath(cells); return; }
+      const e = explore(g, s);
+      if (e){ if (S.mode !== 'explore') S.explorations++; S.mode = 'explore'; S.path = toPath(e); return; }
+      S.mode = 'stuck'; S.path = []; S.retryAt = S.frame + 30;
+    }
+
+    function sense(){
+      const R = S.robot;
+      for (const o of objs){
+        const gp = rectGap(R.x, R.y, o);
+        const vis = gp <= R_SENSE && visibleObj(R.x, R.y, o);
+        o.visible = vis;
+        if (!o.seen && (vis || gp <= R_PROX)){ o.seen = true; o.order = S.seenCount++; }
+        if (vis && gp < o.minGap) o.minGap = gp;     // classification only improves with line of sight
+      }
+    }
+    const signature = () => objs.map(o => o.seen ? labelSet(o).length : 0).join('');
+
+    function step(){
+      if (S.done) return;
+      S.frame++;
+      sense();
+      const sig = signature();
+      if (sig !== S.sig || (!S.path.length && S.frame >= S.retryAt)){ S.sig = sig; replan(); }
+
+      let move = SPEED;
+      while (move > 0 && S.path.length){
+        const p = S.path[0], dx = p.x - S.robot.x, dy = p.y - S.robot.y, d = Math.hypot(dx, dy);
+        if (d > 0.01) S.heading = Math.atan2(dy, dx);
+        if (d <= move){ S.robot.x = p.x; S.robot.y = p.y; move -= d; S.path.shift(); }
+        else { S.robot.x += dx / d * move; S.robot.y += dy / d * move; move = 0; }
+      }
+      S.trail.push({x:S.robot.x, y:S.robot.y, m:S.mode});
+      S.sigma = Math.min(8.5, S.sigma + 0.003);     // bounded state covariance growth
+
+      const g = S.goals[S.gi];
+      if (Math.hypot(S.robot.x - g.x, S.robot.y - g.y) < CELL){
+        S.gi++; S.path = [];
+        if (S.gi >= S.goals.length){ S.done = true; S.mode = 'done'; }
+        else S.sig = '';
+      }
+    }
+
+    // invariants used by the offline test harness
+    function check(){
+      const v = [], R = S.robot;
+      for (const o of objs){
+        const gp = rectGap(R.x, R.y, o);
+        if (o.seen && gp < padOf(o) + ROBOT_R - 1e-6) v.push(`region:${o.name}:${(gp - padOf(o) - ROBOT_R).toFixed(2)}`);
+        if (gp < o.truePad + ROBOT_R - 1e-6) v.push(`true:${o.name}`);
+      }
+      if (wallDist(R.x, R.y) < WALL_D + ROBOT_R - 1e-6) v.push('wall');
+      return v;
+    }
+    return {S, step, check};
+  }
+/*SIM-END*/
+
+  /* ================= rendering ================= */
+  const canvas = document.getElementById('scene');
+  const ctx = canvas.getContext('2d');
+  const off = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
+  const sceneC = off(), sceneX = sceneC.getContext('2d');
+  const maskC  = off(), maskX  = maskC.getContext('2d');
+  const revC   = off(), revX   = revC.getContext('2d');
+
+  const INK = '232,238,230', GREEN = '122,211,165', RED = '227,106,95';
+  const PANEL = '#0e3024';
+  const FONT = '"Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif';
+
+  const sel = document.getElementById('task');
+  const phiEl = document.getElementById('phi');
+  const qaEl = document.getElementById('qa');
+  const modeEl = document.getElementById('mode');
+  const keyEl = document.getElementById('key');
+  const statsEl = document.getElementById('stats');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let sim = null, phase = 'translating', doneAt = 0, acc = 0, last = performance.now();
+  let fTimers = [], keySig = '';
+
+  const tokHTML = t => t.startsWith('π:') ? `<i>π</i><sub>${t.slice(2)}</sub>` : t;
+
+  function buildFormula(key){
+    fTimers.forEach(clearTimeout); fTimers = [];
+    phiEl.innerHTML = '';
+    qaEl.innerHTML = '<i>ConformalNL2LTL</i>: translating ξ into φ, one QA step at a time&hellip;';
+    let t = 0, hadHelp = false;
+    TASKS[key].phi.forEach((alts, idx) => {
+      t += 170;
+      fTimers.push(setTimeout(() => {
+        const span = document.createElement('span');
+        span.className = 'tok';
+        if (alts.length > 1){
+          span.classList.add('amb');
+          span.innerHTML = '{' + alts.map(tokHTML).join(', ') + '}';
+          qaEl.innerHTML = `QA step ${idx + 1}: primary LLM set <span class="r">𝒞 = {${alts.map(tokHTML).join(', ')}}</span> is non-singleton &rarr; querying the auxiliary LLM&hellip;`;
+          fTimers.push(setTimeout(() => {
+            span.classList.remove('amb');
+            span.innerHTML = tokHTML(alts[0]);
+            qaEl.innerHTML = `QA step ${idx + 1}: <span class="r">{${alts.map(tokHTML).join(', ')}}</span> ∩ 𝒞<sub>aux</sub> = <span class="g">{${tokHTML(alts[0])}}</span>, resolved without asking the user.`;
+          }, 1000));
+          hadHelp = true;
+        } else span.innerHTML = tokHTML(alts[0]);
+        phiEl.appendChild(span);
+      }, t));
+      if (alts.length > 1) t += 1000;
+    });
+    fTimers.push(setTimeout(() => {
+      if (!hadHelp) qaEl.innerHTML = 'Every QA prediction set was a singleton, so no help was requested.';
+      phase = 'running';
+    }, t + 400));
+  }
+
+  function startTask(key){
+    sim = createSim(key);
+    maskX.clearRect(0, 0, W, H);
+    phase = 'translating';
+    keySig = '';
+    buildFormula(key);
+  }
+  sel.addEventListener('change', () => startTask(sel.value));
+
+  /* ---- helpers ---- */
+  function roundRect(c, x, y, w, h, r){
+    r = Math.max(0, Math.min(r, w / 2, h / 2));
+    c.beginPath();
+    c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+  }
+  function rayHit(ox, oy, dx, dy, maxT){
+    let best = maxT;
+    for (const s of WALLS){
+      const ex = s.x2 - s.x1, ey = s.y2 - s.y1, den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-9) continue;
+      const t = ((s.x1 - ox) * ey - (s.y1 - oy) * ex) / den;
+      const u = ((s.x1 - ox) * dy - (s.y1 - oy) * dx) / den;
+      if (t > 0 && t < best && u >= 0 && u <= 1) best = t;
+    }
+    return best;
+  }
+  function revealFrom(x, y){
+    const N = 220;
+    maskX.save();
+    maskX.globalCompositeOperation = 'lighter';
+    const g = maskX.createRadialGradient(x, y, 0, x, y, R_SENSE);
+    g.addColorStop(0, 'rgba(255,255,255,1)');
+    g.addColorStop(0.7, 'rgba(255,255,255,.9)');
+    g.addColorStop(1, 'rgba(255,255,255,0)');
+    maskX.fillStyle = g;
+    maskX.beginPath();
+    for (let k = 0; k < N; k++){
+      const a = k / N * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a);
+      const t = rayHit(x, y, dx, dy, R_SENSE);
+      if (k === 0) maskX.moveTo(x + dx * t, y + dy * t); else maskX.lineTo(x + dx * t, y + dy * t);
+    }
+    maskX.closePath(); maskX.fill();
+    maskX.restore();
+  }
+
+  function drawGrid(c){
+    c.save();
+    c.strokeStyle = `rgba(${INK},.045)`; c.lineWidth = 1;
+    c.beginPath();
+    for (let x = OUTER.x; x <= OUTER.x + OUTER.w; x += PX_PER_M){ c.moveTo(x + .5, OUTER.y); c.lineTo(x + .5, OUTER.y + OUTER.h); }
+    for (let y = OUTER.y; y <= OUTER.y + OUTER.h; y += PX_PER_M){ c.moveTo(OUTER.x, y + .5); c.lineTo(OUTER.x + OUTER.w, y + .5); }
+    c.stroke();
+    c.restore();
+  }
+  function drawWalls(c){
+    c.save();
+    c.strokeStyle = `rgba(${INK},.88)`; c.lineWidth = 3.2; c.lineCap = 'square';
+    c.beginPath();
+    for (const s of WALLS){ c.moveTo(s.x1, s.y1); c.lineTo(s.x2, s.y2); }
+    c.stroke();
+    // door swings (architectural convention)
+    c.strokeStyle = `rgba(${INK},.22)`; c.lineWidth = 1;
+    for (const r of ROOMS) for (const d of r.doors){
+      const R = d.b - d.a;
+      let hx, hy, a0, a1, lx, ly;
+      if (d.s === 't'){ hx = d.a; hy = r.y;       a0 = 0;           a1 = Math.PI / 2; lx = hx; ly = hy + R; }
+      if (d.s === 'b'){ hx = d.a; hy = r.y + r.h; a0 = -Math.PI / 2; a1 = 0;          lx = hx; ly = hy - R; }
+      if (d.s === 'l'){ hx = r.x; hy = d.a;       a0 = 0;           a1 = Math.PI / 2; lx = hx + R; ly = hy; }
+      if (d.s === 'r'){ hx = r.x + r.w; hy = d.a; a0 = Math.PI / 2; a1 = Math.PI;     lx = hx - R; ly = hy; }
+      c.beginPath(); c.arc(hx, hy, R, a0, a1); c.stroke();
+      c.beginPath(); c.moveTo(hx, hy); c.lineTo(lx, ly); c.stroke();
+    }
+    c.restore();
+  }
+  function drawLabels(c){
+    c.save();
+    c.fillStyle = `rgba(${INK},.62)`;
+    c.font = `italic 19px ${FONT}`;
+    for (const r of ROOMS){
+      const bottomDoor = r.doors.some(d => d.s === 't');
+      c.fillText(r.name, r.x + 16, bottomDoor ? r.y + r.h - 16 : r.y + 30);
+    }
+    c.fillStyle = `rgba(${INK},.3)`;
+    c.font = `italic 16px ${FONT}`;
+    c.fillText('hallway', 725, 405);
+    c.save(); c.translate(527, 640); c.rotate(-Math.PI / 2); c.fillText('hallway', 0, 0); c.restore();
+    c.save(); c.translate(1083, 200); c.rotate(-Math.PI / 2); c.fillText('hallway', 0, 0); c.restore();
+    c.restore();
+  }
+  function drawScaleBar(c){
+    c.save();
+    const x = 40, y = 788;
+    c.strokeStyle = `rgba(${INK},.7)`; c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(x, y); c.lineTo(x + PX_PER_M, y);
+    c.moveTo(x, y - 5); c.lineTo(x, y + 1); c.moveTo(x + PX_PER_M, y - 5); c.lineTo(x + PX_PER_M, y + 1); c.stroke();
+    c.fillStyle = `rgba(${INK},.7)`; c.font = `italic 14px ${FONT}`;
+    c.fillText('1 m', x + PX_PER_M + 8, y + 4);
+    c.restore();
+  }
+  function drawObjects(c, objs, bright){
+    for (const o of objs){
+      c.lineWidth = 1.4;
+      c.fillStyle = bright ? `rgba(${INK},.16)` : `rgba(${INK},.04)`;
+      c.strokeStyle = bright ? `rgba(${INK},.8)` : `rgba(${INK},.16)`;
+      c.fillRect(o.x, o.y, o.w, o.h);
+      c.strokeRect(o.x + .5, o.y + .5, o.w - 1, o.h - 1);
+    }
+  }
+  function drawRegions(c, objs){
+    for (const o of objs){
+      if (!o.seen) continue;
+      const set = labelSet(o), pad = padOf(o), single = set.length === 1, col = single ? GREEN : RED;
+      const f = ambiguity(o);
+      c.save();
+      if (!single && f > 0.05) c.filter = `blur(${(f * 4).toFixed(1)}px)`;
+      roundRect(c, o.x - pad, o.y - pad, o.w + 2 * pad, o.h + 2 * pad, pad);
+      c.fillStyle = `rgba(${col},${single ? .09 : .13})`;
+      c.fill();
+      c.setLineDash(single ? [] : [7, 5]);
+      c.lineWidth = 1.6;
+      c.strokeStyle = `rgba(${col},.9)`;
+      c.stroke();
+      c.restore();
+    }
+    // set labels on top, unblurred
+    c.save();
+    c.font = `italic 15px ${FONT}`;
+    for (const o of objs){
+      if (!o.seen) continue;
+      const set = labelSet(o), pad = padOf(o), single = set.length === 1;
+      const txt = '{' + set.map(k => CLASSES[k].label).join(', ') + '}';
+      c.fillStyle = `rgba(${single ? GREEN : RED},.98)`;
+      let tx = o.x - pad + 6, ty = o.y - pad - 7;
+      if (ty < 18) ty = o.y + o.h + pad + 17;
+      const w = c.measureText(txt).width;
+      tx = Math.max(6, Math.min(W - w - 6, tx));
+      c.fillText(txt, tx, ty);
+    }
+    c.restore();
+  }
+  function drawGoals(c, S){
+    c.save();
+    S.goals.forEach((g, i) => {
+      const active = i === S.gi, done = i < S.gi;
+      c.strokeStyle = `rgba(${GREEN},${active ? .95 : done ? .5 : .45})`;
+      c.lineWidth = 1.6;
+      c.beginPath(); c.arc(g.x, g.y, 12, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.moveTo(g.x - 5, g.y); c.lineTo(g.x + 5, g.y); c.moveTo(g.x, g.y - 5); c.lineTo(g.x, g.y + 5); c.stroke();
+      c.fillStyle = `rgba(${GREEN},${active ? .95 : .55})`;
+      c.font = `italic 16px ${FONT}`;
+      c.fillText('π', g.x + 16, g.y + 5);
+      c.font = `italic 11px ${FONT}`;
+      c.fillText(g.ap, g.x + 25, g.y + 9);
+    });
+    c.restore();
+  }
+  function drawTrail(c, S){
+    const T = S.trail;
+    if (T.length < 2) return;
+    c.save();
+    c.lineWidth = 2.6; c.lineCap = 'round'; c.lineJoin = 'round';
+    let i = 0;
+    while (i < T.length - 1){
+      const m = T[i + 1].m;
+      c.strokeStyle = `rgba(${m === 'explore' ? RED : GREEN},.85)`;
+      c.beginPath(); c.moveTo(T[i].x, T[i].y);
+      while (i < T.length - 1 && T[i + 1].m === m){ i++; c.lineTo(T[i].x, T[i].y); }
+      c.stroke();
+    }
+    c.restore();
+  }
+  function drawPlan(c, S){
+    if (!S.path.length) return;
+    c.save();
+    c.setLineDash([6, 6]); c.lineWidth = 1.6;
+    c.strokeStyle = `rgba(${S.mode === 'explore' ? RED : GREEN},.6)`;
+    c.beginPath(); c.moveTo(S.robot.x, S.robot.y);
+    for (const p of S.path) c.lineTo(p.x, p.y);
+    c.stroke();
+    c.restore();
+  }
+  function drawRobot(c, S, now){
+    const {x, y} = S.robot, s = S.sigma * (1 + Math.sin(now / 500) * 0.04);
+    c.save();
+    c.filter = `blur(${(s * 0.45).toFixed(1)}px)`;
+    const g = c.createRadialGradient(x, y, 0, x, y, s * 2.4);
+    g.addColorStop(0, `rgba(${INK},.95)`);
+    g.addColorStop(.45, `rgba(${GREEN},.55)`);
+    g.addColorStop(1, `rgba(${GREEN},0)`);
+    c.fillStyle = g;
+    c.beginPath(); c.arc(x, y, s * 2.4, 0, Math.PI * 2); c.fill();
+    c.restore();
+    c.save();
+    c.translate(x, y); c.rotate(S.heading);
+    c.strokeStyle = `rgba(${INK},.75)`; c.lineWidth = 1.1;
+    c.setLineDash([3, 3]);
+    c.beginPath(); c.ellipse(0, 0, s * 1.25, s, 0, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = `rgba(${INK},.45)`;
+    c.beginPath(); c.ellipse(0, 0, s * 2.5, s * 2, 0, 0, Math.PI * 2); c.stroke();
+    c.setLineDash([]);
+    c.fillStyle = `rgba(${INK},1)`;
+    c.beginPath(); c.arc(0, 0, 2.4, 0, Math.PI * 2); c.fill();
+    c.restore();
+  }
+
+  function render(now){
+    const S = sim.S;
+    ctx.fillStyle = PANEL; ctx.fillRect(0, 0, W, H);
+    drawGrid(ctx);
+
+    // unknown interior: grey silhouettes
+    drawObjects(ctx, S.objs, false);
+
+    // explored interior: masked by accumulated visibility
+    revealFrom(S.robot.x, S.robot.y);
+    sceneX.clearRect(0, 0, W, H);
+    sceneX.fillStyle = `rgba(${GREEN},.05)`;
+    sceneX.fillRect(OUTER.x, OUTER.y, OUTER.w, OUTER.h);
+    drawObjects(sceneX, S.objs, true);
+    sceneX.save();
+    sceneX.font = `italic 13px ${FONT}`;
+    sceneX.fillStyle = `rgba(${INK},.8)`;
+    for (const o of S.objs) sceneX.fillText(o.name, o.x + 3, o.y + o.h / 2 + 4);
+    sceneX.restore();
+    revX.clearRect(0, 0, W, H);
+    revX.globalCompositeOperation = 'source-over';
+    revX.drawImage(maskC, 0, 0);
+    revX.globalCompositeOperation = 'source-in';
+    revX.drawImage(sceneC, 0, 0);
+    revX.globalCompositeOperation = 'source-over';
+    ctx.drawImage(revC, 0, 0);
+
+    drawWalls(ctx);
+    drawLabels(ctx);
+    drawRegions(ctx, S.objs);
+    drawGoals(ctx, S);
+    drawTrail(ctx, S);
+    drawPlan(ctx, S);
+    drawRobot(ctx, S, now);
+    drawScaleBar(ctx);
+  }
+
+  function updatePanel(){
+    const S = sim.S;
+    let cls = 'idle', txt = 'translating';
+    if (phase === 'running'){
+      if (S.mode === 'explore'){ cls = 'explore'; txt = 'exploration'; }
+      else if (S.mode === 'done'){ cls = 'exploit'; txt = 'mission complete'; }
+      else if (S.mode === 'stuck'){ cls = 'explore'; txt = 'replanning'; }
+      else { cls = 'exploit'; txt = 'exploitation'; }
+    }
+    if (modeEl.className !== 'pill ' + cls) modeEl.className = 'pill ' + cls;
+    if (modeEl.textContent !== txt) modeEl.textContent = txt;
+
+    const seen = S.objs.filter(o => o.seen).sort((a, b) => a.order - b.order);
+    const sig = seen.map(o => o.id + ':' + labelSet(o).length).join('|');
+    if (sig === keySig) return;
+    keySig = sig;
+    const single = seen.filter(o => labelSet(o).length === 1).length;
+    statsEl.innerHTML = `1 − α = 0.95 &nbsp;·&nbsp; detected ${seen.length}/${S.objs.length} &nbsp;·&nbsp; singleton ${single}/${seen.length || 0}`;
+    if (!seen.length){ keyEl.innerHTML = '<span class="key-empty">No objects detected yet.</span>'; return; }
+    keyEl.innerHTML = seen.map(o => {
+      const set = labelSet(o), res = set.length === 1;
+      return `<div class="kr ${res ? 'res' : 'open'}"><span class="kn">${o.name}</span>` +
+             `<span class="ks">{${set.map(k => CLASSES[k].label).join(', ')}}</span>` +
+             `<span class="kd">${(padOf(o) / PX_PER_M).toFixed(2)} m</span></div>`;
+    }).join('');
+  }
+
+  function frame(now){
+    const dt = Math.min(64, now - last); last = now;
+    if (phase === 'running' && !sim.S.done){
+      acc += dt * (reduce ? 0.4 : 1);
+      let n = 0;
+      while (acc >= 16.667 && n < 4){ sim.step(); acc -= 16.667; n++; }
+      if (sim.S.done) doneAt = now;
+    } else acc = 0;
+    if (sim.S.done && now - doneAt > 3200) startTask(sel.value);
+    render(now);
+    updatePanel();
+    requestAnimationFrame(frame);
+  }
+
+  startTask(sel.value);
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
