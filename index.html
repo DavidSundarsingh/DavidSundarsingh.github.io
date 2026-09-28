@@ -53,19 +53,25 @@
   sub{font-size:.72em;line-height:0}
   .sc{font-variant-caps:all-small-caps;letter-spacing:.06em}
 
-  /* ================= LANDING / FIGURE ================= */
-  #landing-wrap{height:175vh;position:relative}
-  #landing{
-    position:sticky;top:0;height:100vh;width:100%;
-    display:flex;align-items:center;justify-content:center;
-    will-change:opacity,transform;
+  /* ================= INTRO ================= */
+  #intro{
+    position:relative;min-height:100vh;max-width:760px;margin:0 auto;padding:70px 28px 110px;
+    display:flex;flex-direction:column;justify-content:center;
   }
-  #landing.done{pointer-events:none}
+  #intro .bio p{margin:0}
+  #intro .epigraph{margin:40px auto 0}
+
+  /* ================= DEMO / FIGURE ================= */
+  #demo{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:48px 0;border-top:1px solid var(--rule);scroll-margin-top:0;
+  }
   .stage{
-    width:min(1100px, 94vw, calc((100vh - 350px) * 2));
+    width:min(1100px, 94vw, calc((100vh - 400px) * 2));
     min-width:min(640px, 94vw);
     display:flex;flex-direction:column;gap:10px;
   }
+  h2.demo-title{margin:0 0 4px}
 
   .fig-head{
     display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 26px;
@@ -136,7 +142,7 @@
   .key-empty{color:var(--muted);font-style:italic;font-size:13.5px;grid-column:1/-1}
 
   .scroll-cue{
-    position:absolute;bottom:18px;left:50%;transform:translateX(-50%);
+    position:absolute;bottom:26px;left:50%;transform:translateX(-50%);text-decoration:none;
     font-size:13px;color:var(--muted);font-variant-caps:all-small-caps;letter-spacing:.14em;
     display:flex;flex-direction:column;align-items:center;gap:4px;
   }
@@ -144,8 +150,7 @@
   @keyframes cue{0%,100%{opacity:.3}50%{opacity:1}}
 
   /* ================= HOMEPAGE ================= */
-  #sheet{position:relative;z-index:1;background:var(--bg);border-top:1px solid var(--rule)}
-  main{max-width:720px;margin:0 auto;padding:84px 28px 110px}
+  main{max-width:720px;margin:0 auto;padding:84px 28px 110px;border-top:1px solid var(--rule)}
   .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
   .reveal.in{opacity:1;transform:none}
 
@@ -223,9 +228,39 @@
 </head>
 <body>
 
-<div id="landing-wrap">
-  <section id="landing" aria-label="Interactive figure">
-    <div class="stage">
+<section id="intro" aria-label="About">
+  <header class="masthead reveal">
+    <img class="portrait" alt="Portrait of David Smith Sundarsingh" width="156" height="156" src="assets/profile.jpg">
+    <div class="masthead-text">
+      <h1>David Smith Sundarsingh</h1>
+      <p class="affil">Department of Electrical &amp; Systems Engineering<br>Washington University in St. Louis</p>
+      <nav class="links" aria-label="Contact">
+        <a href="mailto:d.s.sundarsingh@wustl.edu">Email</a><span class="dot">·</span><a href="https://scholar.google.com/citations?user=fK_ULTYAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a><span class="dot">·</span><a href="https://github.com/DavidSundarsingh" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="reveal bio">
+    <p>I am a Ph.D. student at Washington University in St. Louis, where I am advised by
+    <a class="cite" href="https://engineering.washu.edu/faculty/Yiannis-Kantaros.html" target="_blank" rel="noopener">Dr. Yiannis Kantaros</a>
+    in the Department of Electrical and Systems Engineering. My research focuses on developing provably
+    safe planning and task interpretation frameworks for uncertain systems and environments, applying
+    Conformal Prediction for rigorous uncertainty quantification for AI-enabled perception systems and
+    foundation models. Prior to my doctoral studies, I earned my Master&rsquo;s degree in Robotics and
+    Automation from the Defence Institute of Advanced Technology (DIAT), Pune in 2023, and my
+    Bachelor&rsquo;s degree in Mechanical Engineering from the Coimbatore Institute of Technology (CIT),
+    Coimbatore in 2020.</p>
+  </section>
+
+  <p class="epigraph reveal">Robots that reason reliably about what they are told,
+  and act safely on what they are unsure of.</p>
+
+  <a class="scroll-cue" href="#demo"><span>scroll</span><i></i></a>
+</section>
+
+<section id="demo" aria-label="Interactive figure">
+    <div class="stage reveal">
+      <h2 class="demo-title">Interactive demo</h2>
       <div class="fig-head">
         <label class="instr"><span class="sym">ξ</span><select id="task" aria-label="Natural-language instruction">
           <option value="kitchStudy">Go through the kitchen toward the study.</option>
@@ -265,39 +300,9 @@
       </div>
     </div>
 
-    <div class="scroll-cue"><span>scroll</span><i></i></div>
-  </section>
-</div>
+</section>
 
-<div id="sheet">
 <main>
-  <header class="masthead reveal">
-    <img class="portrait" alt="Portrait of David Smith Sundarsingh" width="156" height="156" src="assets/profile.jpg">
-    <div class="masthead-text">
-      <h1>David Smith Sundarsingh</h1>
-      <p class="affil">Department of Electrical &amp; Systems Engineering<br>Washington University in St. Louis</p>
-      <nav class="links" aria-label="Contact">
-        <a href="mailto:d.s.sundarsingh@wustl.edu">Email</a><span class="dot">·</span><a href="https://scholar.google.com/citations?user=fK_ULTYAAAAJ&amp;hl=en" target="_blank" rel="noopener">Google Scholar</a><span class="dot">·</span><a href="https://github.com/DavidSundarsingh" target="_blank" rel="noopener">GitHub</a>
-      </nav>
-    </div>
-  </header>
-
-  <section class="reveal">
-    <h2>About</h2>
-    <p>I am a Ph.D. student at Washington University in St. Louis, where I am advised by
-    <a class="cite" href="https://engineering.washu.edu/faculty/Yiannis-Kantaros.html" target="_blank" rel="noopener">Dr. Yiannis Kantaros</a>
-    in the Department of Electrical and Systems Engineering. My research focuses on developing provably
-    safe planning and task interpretation frameworks for uncertain systems and environments, applying
-    Conformal Prediction for rigorous uncertainty quantification for AI-enabled perception systems and
-    foundation models. Prior to my doctoral studies, I earned my Master&rsquo;s degree in Robotics and
-    Automation from the Defence Institute of Advanced Technology (DIAT), Pune in 2023, and my
-    Bachelor&rsquo;s degree in Mechanical Engineering from the Coimbatore Institute of Technology (CIT),
-    Coimbatore in 2020.</p>
-  </section>
-
-  <p class="epigraph reveal">Robots that reason reliably about what they are told,
-  and act safely on what they are unsure of.</p>
-
   <section class="reveal">
     <h2>Projects</h2>
     <ol class="bib">
@@ -347,31 +352,10 @@
 </main>
 
 <footer>&copy; 2026 David Smith Sundarsingh</footer>
-</div>
 
 <script>
 (() => {
   "use strict";
-
-  /* ================= scroll fade ================= */
-  const landing = document.getElementById('landing');
-  const cue = document.querySelector('.scroll-cue');
-  let ticking = false;
-  function onScroll(){
-    const vh = window.innerHeight;
-    const t = Math.min(Math.max(window.scrollY / (vh * 0.95), 0), 1);
-    const e = t * t;
-    landing.style.opacity = String(1 - e);
-    landing.style.transform = `scale(${1 - e * 0.05}) translateY(${-e * 34}px)`;
-    landing.style.filter = `blur(${e * 5}px)`;
-    landing.classList.toggle('done', t > 0.98);
-    if (cue) cue.style.opacity = String(Math.max(0, 1 - t * 3));
-    ticking = false;
-  }
-  window.addEventListener('scroll', () => {
-    if (!ticking){ ticking = true; requestAnimationFrame(onScroll); }
-  }, {passive:true});
-  onScroll();
 
   const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }), {threshold:0.1});
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
@@ -394,7 +378,6 @@
   const WALL_D = 0.10 * PX_PER_M;      // wall clearance
   const WALL_REQ = WALL_D + R_M + ROBOT_R;
   const R_SENSE = 290;                 // camera range (line of sight)
-  const R_PROX = 150;                  // short-range omnidirectional detection (Assumption II.2)
   const SPAN = 90;                     // range over which alternative labels are ruled out
   const SPEED = 1.7;                   // px per step (≈1.3 m/s)
   const START = {x:70, y:400};
@@ -406,7 +389,7 @@
     {name:'Study',       x:1143, y:30,  w:427, h:305, doors:[{s:'l', a:200,  b:300}, {s:'b', a:1400, b:1500}]},
     {name:'Bedroom',     x:30,   y:465, w:427, h:305, doors:[{s:'t', a:300,  b:400}]},
     {name:'Bathroom',    x:587,  y:465, w:426, h:305, doors:[{s:'r', a:560,  b:660}]},
-    {name:'Garage',      x:1143, y:465, w:427, h:305, doors:[{s:'t', a:1350, b:1450}]}
+    {name:'Garage',      x:1143, y:465, w:427, h:305, doors:[{s:'t', a:1350, b:1450}, {s:'l', a:530, b:625, hinge:'b'}]}
   ];
 
   // class-dependent safety distances d_k (metres) -- every class distinct
@@ -464,7 +447,7 @@
     {c:'tub',      alts:['bed','person'],      x:800,  y:680, w:170, h:70},
     {c:'car',      alts:['toolbox'],           x:1170, y:630, w:240, h:100},
     {c:'toolbox',  alts:['dog'],               x:1500, y:690, w:50,  h:40},
-    {c:'coatrack', alts:['person'],            x:1017, y:505, w:24,  h:24},
+    {c:'coatrack', alts:['person'],            x:1115, y:505, w:24,  h:24},
     // clutter
     {c:'ottoman',  alts:['dog'],               x:170,  y:165, w:50,  h:40},
     {c:'cabinet',  alts:['fridge'],            x:60,   y:280, w:90,  h:35},
@@ -561,9 +544,24 @@
     const dy = Math.max(o.y - py, 0, py - (o.y + o.h));
     return Math.hypot(dx, dy);
   }
+  // An object is sensed only if the sensor footprint actually reaches it: some point on its
+  // outline lies within range R_SENSE and has an unobstructed line of sight (walls occlude).
+  const OUTLINE = new Map();
+  function outline(o){
+    const key = o.x + ',' + o.y;
+    if (OUTLINE.has(key)) return OUTLINE.get(key);
+    const pts = [], step = 6, x0 = o.x + 1, y0 = o.y + 1, x1 = o.x + o.w - 1, y1 = o.y + o.h - 1;
+    for (let x = x0; x <= x1; x += step){ pts.push([x, y0], [x, y1]); }
+    for (let y = y0; y <= y1; y += step){ pts.push([x0, y], [x1, y]); }
+    pts.push([x1, y1]);
+    OUTLINE.set(key, pts);
+    return pts;
+  }
   function visibleObj(px, py, o){
-    const pts = [[o.x+o.w/2, o.y+o.h/2], [o.x+2, o.y+2], [o.x+o.w-2, o.y+2], [o.x+2, o.y+o.h-2], [o.x+o.w-2, o.y+o.h-2]];
-    for (const [qx, qy] of pts) if (!blocked(px, py, qx, qy)) return true;
+    for (const [qx, qy] of outline(o)){
+      if (Math.hypot(qx - px, qy - py) > R_SENSE) continue;
+      if (!blocked(px, py, qx, qy)) return true;
+    }
     return false;
   }
 
@@ -766,7 +764,7 @@
         const gp = rectGap(R.x, R.y, o);
         const vis = gp <= R_SENSE && visibleObj(R.x, R.y, o);
         o.visible = vis;
-        if (!o.seen && (vis || gp <= R_PROX)){ o.seen = true; o.order = S.seenCount++; }
+        if (!o.seen && vis){ o.seen = true; o.order = S.seenCount++; }
         if (vis && gp < o.minGap) o.minGap = gp;     // classification only improves with line of sight
       }
     }
@@ -1155,6 +1153,7 @@
       if (dr.s === 'b'){ hx = dr.a; hy = r.y + r.h; a0 = -Math.PI / 2; a1 = 0;           lx = 0;  ly = -1; }
       if (dr.s === 'l'){ hx = r.x; hy = dr.a;       a0 = 0;            a1 = Math.PI / 2; lx = 1;  ly = 0; }
       if (dr.s === 'r'){ hx = r.x + r.w; hy = dr.a; a0 = Math.PI / 2;  a1 = Math.PI;     lx = -1; ly = 0; }
+      if (dr.hinge === 'b' && dr.s === 'l'){ hy = dr.b; a0 = -Math.PI / 2; a1 = 0; }
       wc.beginPath(); wc.arc(hx, hy, Rr, a0, a1); wc.strokeStyle = 'rgba(120,112,104,.55)'; wc.lineWidth = 1; wc.stroke();
       line(wc, hx, hy, hx + lx * Rr, hy + ly * Rr, 'rgb(150,118,84)', 3);
     }
@@ -1265,21 +1264,25 @@
     c.restore();
   }
   function drawRobot(c, S, now){
-    const {x, y} = S.robot, s = S.sigma * (1 + Math.sin(now / 500) * 0.04);
-    const g = c.createRadialGradient(x, y, 0, x, y, s * 3);
-    g.addColorStop(0, 'rgba(58,120,196,.55)'); g.addColorStop(.5, 'rgba(58,120,196,.25)'); g.addColorStop(1, 'rgba(58,120,196,0)');
-    c.fillStyle = g; c.beginPath(); c.arc(x, y, s * 3, 0, Math.PI * 2); c.fill();
+    // the robot is drawn with its state uncertainty: a blurred body, a Gaussian halo,
+    // and 1σ / 2σ covariance ellipses centred on it
+    const {x, y} = S.robot, s = S.sigma * (1 + Math.sin(now / 500) * 0.05), body = 9;
+    const g = c.createRadialGradient(x, y, 0, x, y, body + 4 * s);
+    g.addColorStop(0, 'rgba(58,120,196,.5)'); g.addColorStop(.55, 'rgba(58,120,196,.2)'); g.addColorStop(1, 'rgba(58,120,196,0)');
+    c.fillStyle = g; c.beginPath(); c.arc(x, y, body + 4 * s, 0, Math.PI * 2); c.fill();
+    c.save();
+    c.filter = `blur(${(s * 0.16).toFixed(1)}px)`;
+    c.beginPath(); c.arc(x, y, body + 2, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
+    c.beginPath(); c.arc(x, y, body, 0, Math.PI * 2); c.fillStyle = 'rgb(44,48,56)'; c.fill();
+    c.restore();
     c.save();
     c.translate(x, y); c.rotate(S.heading);
-    c.setLineDash([4, 4]); c.lineWidth = 1.1;
-    c.strokeStyle = 'rgba(40,60,90,.85)';
-    c.beginPath(); c.ellipse(0, 0, s * 1.25, s, 0, 0, Math.PI * 2); c.stroke();
-    c.strokeStyle = 'rgba(60,80,110,.6)';
-    c.beginPath(); c.ellipse(0, 0, s * 2.5, s * 2, 0, 0, Math.PI * 2); c.stroke();
-    c.setLineDash([]);
-    c.beginPath(); c.arc(0, 0, 12, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
-    c.beginPath(); c.arc(0, 0, 10, 0, Math.PI * 2); c.fillStyle = 'rgb(44,48,56)'; c.fill();
-    c.beginPath(); c.moveTo(0, 0); c.lineTo(9.5, 0); c.strokeStyle = 'rgb(120,220,170)'; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(body * 1.05, 0); c.strokeStyle = 'rgb(120,220,170)'; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
+    c.setLineDash([4, 4]);
+    c.strokeStyle = 'rgba(30,50,84,.9)'; c.lineWidth = 1.6;
+    c.beginPath(); c.ellipse(0, 0, body + 1.0 * s, body + .75 * s, 0, 0, Math.PI * 2); c.stroke();
+    c.strokeStyle = 'rgba(60,90,130,.75)'; c.lineWidth = 1.1;
+    c.beginPath(); c.ellipse(0, 0, body + 2.0 * s, body + 1.5 * s, 0, 0, Math.PI * 2); c.stroke();
     c.restore();
   }
 
@@ -1310,7 +1313,7 @@
 
   function updatePanel(){
     const S = sim.S;
-    let cls = 'idle', txt = 'translating';
+    let cls = 'idle', txt = phase === 'idle' ? 'ready' : 'translating';
     if (phase === 'running'){
       if (S.mode === 'explore'){ cls = 'explore'; txt = 'exploration'; }
       else if (S.mode === 'done'){ cls = 'exploit'; txt = 'mission complete'; }
@@ -1335,8 +1338,16 @@
     }).join('');
   }
 
+  // The demo starts when it first scrolls into view, and pauses while off-screen.
+  let demoVisible = false, started = false;
+  new IntersectionObserver(es => es.forEach(e => {
+    demoVisible = e.isIntersecting;
+    if (demoVisible && !started){ started = true; startTask(sel.value); }
+  }), {threshold:0.25}).observe(document.getElementById('demo'));
+
   function frame(now){
     const dt = Math.min(64, now - last); last = now;
+    if (!sim || !demoVisible){ requestAnimationFrame(frame); return; }
     if (phase === 'running' && !sim.S.done){
       acc += dt * (reduce ? 0.4 : 1);
       let n = 0;
@@ -1349,7 +1360,10 @@
     requestAnimationFrame(frame);
   }
 
-  startTask(sel.value);
+  sel.addEventListener('change', () => { started = true; });
+  // static first frame so the figure is never blank before it starts
+  sim = createSim(sel.value); phase = 'idle';
+  render(performance.now()); updatePanel();
   requestAnimationFrame(frame);
 })();
 </script>
