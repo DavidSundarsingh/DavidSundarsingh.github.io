@@ -124,6 +124,10 @@
     transition:opacity .25s ease}
   .lab.amb{color:#ff8a7a;border:1px dashed rgba(255,77,61,.8)}
   .lab.tgt{color:#fff;background:rgba(210,58,0,.85);border-color:var(--accent-2);font-style:normal}
+  .room{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:15px;font-style:italic;letter-spacing:.02em;
+    padding:2px 10px;border-radius:14px;color:#111;background:rgba(254,255,250,.82);transition:opacity .4s ease}
+  .room.out{color:rgba(254,255,250,.85);background:rgba(0,0,0,.55);text-decoration:none}
+  .room.likely{color:#fff;background:var(--accent);font-style:normal;font-weight:600}
   .bubble{position:absolute;transform:translate(-50%,-100%);max-width:min(340px,40%);font-size:13.5px;line-height:1.38;
     padding:8px 12px;border-radius:12px;background:rgba(254,255,250,.95);color:#111;
     box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:opacity .3s ease;font-style:italic}
@@ -149,6 +153,7 @@
   .ln.dash{border-top:1.6px dashed var(--ink);opacity:.7}
   .el{display:inline-block;width:18px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1px solid rgba(120,180,255,.8);border-radius:50%;
       background:radial-gradient(circle,rgba(90,160,255,.6) 0 3px,rgba(90,160,255,.15) 5px,transparent 8px)}
+  .roomk{display:inline-block;font-size:11px;padding:0 6px;margin:0 4px 0 2px;border-radius:8px;background:var(--accent);color:#fff;line-height:1.5}
   .bub{display:inline-block;width:16px;height:11px;vertical-align:-1px;margin:0 4px 0 2px;border-radius:5px;background:var(--ink)}
 
   .key-wrap{border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);padding:5px 0 6px}
@@ -319,6 +324,7 @@
         <span><span class="ln dash"></span>planned path</span>
         <span><span class="el"></span>robot state uncertainty</span>
         <span><span class="bub"></span>robot's reasoning</span>
+        <span><span class="roomk">kitchen ✓</span>room type inferred from what it has seen</span>
       </p>
 
       <div class="key-wrap">
@@ -517,14 +523,28 @@
 
   const piAP = s => ['π:' + s];
   const SAFE = [['∧'], ['□'], piAP('safe')];
-  // search tasks: the target class, the room prior, and objects that suggest the target is close
+  // The robot does NOT know which room is which. It only has a semantic prior:
+  // the kinds of room each class of object can plausibly be found in.
+  const RTYPE = {kitchen:'kitchen', living:'living room', bedroom:'bedroom', bathroom:'bathroom', study:'study', garage:'garage'};
+  const ANY = Object.keys(RTYPE);
+  const CAN_BE_IN = {
+    person:ANY, dog:ANY, cat:ANY,
+    fridge:['kitchen'], stove:['kitchen'], sink:['kitchen', 'bathroom'], table:['kitchen', 'living', 'study'],
+    tv:['living', 'bedroom'], fireplace:['living'], sofa:['living'], ottoman:['living', 'bedroom'], plant:['living', 'study', 'bedroom'],
+    lamp:['living', 'bedroom', 'study'], cabinet:['kitchen', 'living', 'bedroom', 'bathroom'], coatrack:['living', 'bedroom'],
+    bed:['bedroom'], wardrobe:['bedroom'], basket:['bedroom', 'bathroom'], tub:['bathroom'], heater:['bathroom', 'bedroom', 'living', 'study', 'garage'],
+    desk:['study', 'bedroom'], chair:['kitchen', 'living', 'study', 'bedroom'], printer:['study'], shelf:['study', 'living', 'garage'],
+    box:['garage', 'study'], car:['garage'], bike:['garage'], toolbox:['garage'], crate:['garage'], stool:['kitchen', 'garage'],
+    bin:['kitchen', 'study', 'bathroom', 'garage'], bench:['living', 'garage'], umbrella:['living']
+  };
+  // search tasks: the target class and the kinds of room it can be in
   const TASKS = {
-    fridge:  {target:'fridge',  rooms:['Kitchen'],     anchors:['stove', 'sink'],      amb:{1:['π:freezer']}},
-    tv:      {target:'tv',      rooms:['Living room'], anchors:['sofa']},
-    bed:     {target:'bed',     rooms:['Bedroom'],     anchors:['wardrobe', 'basket']},
-    tub:     {target:'tub',     rooms:['Bathroom'],    anchors:['sink', 'heater'],     amb:{1:['π:sink']}},
-    printer: {target:'printer', rooms:['Study'],       anchors:['desk', 'shelf']},
-    bike:    {target:'bike',    rooms:['Garage'],      anchors:['car', 'toolbox']}
+    fridge:  {target:'fridge',  types:['kitchen'],            amb:{1:['π:freezer']}},
+    tv:      {target:'tv',      types:['living', 'bedroom']},
+    bed:     {target:'bed',     types:['bedroom']},
+    tub:     {target:'tub',     types:['bathroom'],           amb:{1:['π:sink']}},
+    printer: {target:'printer', types:['study']},
+    bike:    {target:'bike',    types:['garage']}
   };
   for (const t of Object.values(TASKS)){
     t.phi = [['◇'], piAP(t.target), ...SAFE];
@@ -654,7 +674,8 @@
     const S = {
       robot:{x:START.x, y:START.y}, heading:0, sigma:5, target:T, task,
       path:[], mode:'exploit', trail:[], done:false, frame:0, sig:'', retryAt:0, explorations:0, seenCount:0,
-      objs, events:[], focus:null, roomIdx:0, visited:new Set(), skip:new Set(), touch:null, found:null,
+      objs, events:[], focus:null, visited:new Set(), skip:new Set(), touch:null, found:null, cur:null,
+      beliefs:ROOMS.map(r => ({name:r.name, x:r.x, y:r.y, w:r.w, h:r.h, status:'unknown', guess:null, why:null})),
       goal:null, spoken:new Set()
     };
     const say = (text, kind = 'think') => { const last = S.events[S.events.length - 1];
@@ -809,66 +830,108 @@
     }
 
     /* ---------- reasoning: what to do next ---------- */
-    const room = () => task.rooms[Math.min(S.roomIdx, task.rooms.length - 1)];
     const vpKey = (rm, i) => rm + '#' + i;
-    function nextViewpoint(){
-      while (S.roomIdx < task.rooms.length){
-        const rm = task.rooms[S.roomIdx], vps = VIEWPOINTS[rm];
-        const anchors = objs.filter(o => o.seen && labelSet(o).length === 1 && task.anchors.includes(o.c));
-        const order = vps.map((p, i) => ({p, i}))
-          .filter(v => !S.visited.has(vpKey(rm, v.i)))
-          .sort((a, b) => {
-            if (!anchors.length) return a.i - b.i;
-            const da = Math.min(...anchors.map(o => rectGap(a.p.x, a.p.y, o))), db = Math.min(...anchors.map(o => rectGap(b.p.x, b.p.y, o)));
-            return da - db;
-          });
-        if (order.length) return {room:rm, i:order[0].i, p:order[0].p};
-        S.roomIdx++;
-        if (S.roomIdx < task.rooms.length) say(`It isn't in the ${rm.toLowerCase()}. Maybe the ${task.rooms[S.roomIdx].toLowerCase()}?`);
-      }
-      // nothing left in the prior rooms: widen the search to every room, nearest first
-      const all = ROOMS.map(r => r.name).filter(n => !task.rooms.includes(n))
-        .sort((a, b) => { const ra = ROOMS.find(r => r.name === a), rb = ROOMS.find(r => r.name === b);
-          return Math.hypot(ra.x + ra.w/2 - S.robot.x, ra.y + ra.h/2 - S.robot.y) - Math.hypot(rb.x + rb.w/2 - S.robot.x, rb.y + rb.h/2 - S.robot.y); });
-      task.rooms.push(...all);
-      return S.roomIdx < task.rooms.length ? nextViewpoint() : null;
-    }
+    const typesOf = ks => [...new Set(ks.flatMap(k => CAN_BE_IN[k] || ANY))];
+    const fits = ts => ts.some(t => task.types.includes(t));                 // could the target be in such a room?
+    const only = ts => ts.every(t => task.types.includes(t));                // does it pin the room to a target type?
+    const roomPhrase = ts => { const n = ts.filter(t => task.types.includes(t)).map(t => RTYPE[t]);
+      return n.length === 1 ? 'the ' + n[0] : n.map(t => art(t)).join(' or '); };
+    const WANT = task.types.map(t => art(RTYPE[t])).join(' or ');
+    const inRoomOf = o => roomAt(o.x + o.w / 2, o.y + o.h / 2);
+    const belief = name => S.beliefs.find(b => b.name === name);
+    const seenText = ks => ks.length === 1 ? art(lab(ks[0])) : orList(ks);
 
+    // update what each room probably is from the prediction sets of what has been seen in it
+    function updateBeliefs(){
+      for (const b of S.beliefs){
+        const inside = objs.filter(o => o.seen && inRoomOf(o) && inRoomOf(o).name === b.name);
+        const score = {};
+        for (const o of inside){ const ts = typesOf(labelSet(o)); if (ts.length < ANY.length) for (const t of ts) score[t] = (score[t] || 0) + 1 / ts.length; }
+        const best = Object.entries(score).sort((p, q) => q[1] - p[1])[0];
+        b.guess = best ? best[0] : null;
+        if (b.status !== 'unknown' || objs.some(o => o.seen && isTarget(o, T))) continue;
+        const ruler = inside.find(o => !fits(typesOf(labelSet(o))));
+        if (ruler){
+          const ks = labelSet(ruler);
+          b.status = 'out'; b.why = ruler;
+          say(`I see ${seenText(ks)}. ${ks.length === 1 ? 'That doesn\'t' : ks.length === 2 ? 'Neither' : 'None of those'} belong${ks.length === 1 ? '' : 's'} in ${WANT}, so this isn't the room. Let me try another one.`);
+          continue;
+        }
+        const pin = inside.find(o => only(typesOf(labelSet(o))) && o.c !== T);
+        if (pin){
+          const ks = labelSet(pin);
+          b.status = 'likely'; b.why = pin;
+          say(`I see ${seenText(ks)}. This looks like ${roomPhrase(typesOf(ks))}, so the ${TL} should be here.`);
+        }
+      }
+    }
+    // an ambiguous detection whose resolution would tell us what the current room is
+    function informative(o){
+      const ks = labelSet(o);
+      if (ks.length < 2 || ks.some(k => (CAN_BE_IN[k] || ANY).length === ANY.length)) return null;   // people and pets move around
+      const conf = ks.find(k => only(CAN_BE_IN[k] || ANY)), rule = ks.find(k => !fits(CAN_BE_IN[k] || ANY));
+      return conf ? {k:conf, kind:'confirm'} : rule ? {k:rule, kind:'rule'} : null;
+    }
+    function nextRoom(){
+      const R = S.robot;
+      const open = S.beliefs.filter(b => b.status === 'unknown' || b.status === 'likely')
+        .map(b => ({b, vp:VIEWPOINTS[b.name].map((p, i) => ({p, i})).find(v => !S.visited.has(vpKey(b.name, v.i)))}))
+        .filter(x => x.vp);
+      if (!open.length) return null;
+      open.sort((p, q) => (p.b.status === 'likely' ? -1e4 : 0) + Math.hypot(p.vp.p.x - R.x, p.vp.p.y - R.y)
+                        - ((q.b.status === 'likely' ? -1e4 : 0) + Math.hypot(q.vp.p.x - R.x, q.vp.p.y - R.y)));
+      return open[0];
+    }
     function decide(){
       const R = S.robot;
       const tgt = objs.find(o => o.seen && isTarget(o, T));
       if (tgt) return {kind:'reach', obj:tgt};
       const near = o => rectGap(R.x, R.y, o);
-      // only reason about detections inside the room currently being searched
-      const inRoom = o => { const r = roomAt(o.x + o.w / 2, o.y + o.h / 2); return r && r.name === room(); };
-      const cands = objs.filter(o => o.seen && !S.skip.has(o) && inRoom(o) && labelSet(o).length > 1 && labelSet(o).includes(T))
+      const roomOk = o => { const r = inRoomOf(o); return !r || belief(r.name).status !== 'out'; };
+      const cands = objs.filter(o => o.seen && !S.skip.has(o) && roomOk(o) && labelSet(o).length > 1 && labelSet(o).includes(T))
                         .sort((a, b) => near(a) - near(b));
       if (cands.length) return {kind:'inspect', obj:cands[0], why:'candidate'};
-      const anch = objs.filter(o => o.seen && !S.skip.has(o) && inRoom(o) && labelSet(o).length > 1 &&
-                                    labelSet(o).some(k => task.anchors.includes(k)))
-                       .sort((a, b) => near(a) - near(b));
-      if (anch.length) return {kind:'inspect', obj:anch[0], why:'anchor'};
-      const vp = (S.focus && S.focus.kind === 'goto' && !S.visited.has(vpKey(S.focus.room, S.focus.i))) ? S.focus : nextViewpoint();
-      return vp ? {kind:'goto', room:vp.room, i:vp.i, p:vp.p} : null;
+      // still unsure what the current room is: look closer at what would tell us
+      if (S.cur && belief(S.cur).status === 'unknown'){
+        const info = objs.filter(o => o.seen && !S.skip.has(o) && inRoomOf(o) && inRoomOf(o).name === S.cur && informative(o))
+                         .sort((a, b) => near(a) - near(b));
+        if (info.length) return {kind:'inspect', obj:info[0], why:'room', hint:informative(info[0])};
+      }
+      // keep looking around the current room, or move on to the next one
+      if (S.cur && belief(S.cur).status !== 'out'){
+        const v = VIEWPOINTS[S.cur].map((p, i) => ({p, i})).find(v => !S.visited.has(vpKey(S.cur, v.i)));
+        if (v) return {kind:'goto', room:S.cur, i:v.i, p:v.p};
+        if (belief(S.cur).status !== 'out'){
+          say(belief(S.cur).status === 'likely' ? `No ${TL} in this room after all.` : `I can't tell what this room is, and there's no ${TL} in it.`);
+          belief(S.cur).status = 'searched';
+        }
+      }
+      const n = nextRoom();
+      if (!n) return null;
+      return {kind:'goto', room:n.b.name, i:n.vp.i, p:n.vp.p, newRoom:true};
     }
     const sameFocus = (a, b) => a && b && a.kind === b.kind && a.obj === b.obj && a.room === b.room && a.i === b.i;
 
     function announce(f, prev){
       if (f.kind === 'goto'){
-        const rm = f.room.toLowerCase();
-        if (!S.spoken.has('start')){ say(`Find the ${TL}. ${cap(TL)}s are usually in the ${rm}, so I'll head there.`); S.spoken.add('start'); }
-        else if (prev && prev.kind === 'goto' && prev.room === f.room) say(`No ${TL} in sight yet. Let me check the other side of the ${rm}.`);
-        else if (!S.spoken.has('room:' + f.room)) say(`Heading to the ${rm} to keep looking for the ${TL}.`);
-        S.spoken.add('room:' + f.room);
+        if (!S.spoken.has('start')){
+          say(`Find the ${TL}. I don't know this house, so I'll look into each room and use what's inside to tell what kind of room it is.`);
+          S.spoken.add('start');
+        } else if (f.room !== S.cur){ const l = S.events[S.events.length - 1];
+          if (!l || !/another one\.$/.test(l.text)) say(`Let me check the next room.`); }
+        else if (prev && prev.kind === 'goto' && prev.room === f.room)
+          say(belief(f.room).status === 'likely' ? `No ${TL} in sight yet. Let me check the other side of this room.`
+                                                 : `Nothing here tells me what this room is yet. Let me look further in.`);
+        S.cur = f.room;
       } else if (f.kind === 'inspect'){
         const ks = labelSet(f.obj), others = ks.filter(k => k !== T);
         const hz = others.sort((a, b) => CLASSES[b].d - CLASSES[a].d)[0];
         if (f.why === 'candidate')
           say(`That might be the ${TL}: I think it's ${orList(ks)}. Let me take a closer look, staying ${CLASSES[hz].d.toFixed(2)} m away in case it's ${art(lab(hz))}.`);
-        else {
-          const a = ks.find(k => task.anchors.includes(k));
-          say(`I think that's ${orList(ks)}. ${cap(art(lab(a)))} would mean the ${TL} is close, so let me take a closer look.`);
-        }
+        else if (f.hint.kind === 'confirm')
+          say(`I think that's ${orList(ks)}. ${cap(art(lab(f.hint.k)))} would mean this is ${roomPhrase(CAN_BE_IN[f.hint.k])}, so let me take a closer look.`);
+        else
+          say(`I think that's ${orList(ks)}. ${cap(art(lab(f.hint.k)))} would rule this room out, so let me take a closer look.`);
       }
     }
 
@@ -929,9 +992,8 @@
         if (len === 1 && o.lastLen !== 1){
           const focal = S.focus && S.focus.obj === o;
           if (o.c === T) say(`There's the ${TL}! Heading over to it.`, 'found');
-          else if (focal && task.anchors.includes(o.c)) say(`It's ${art(o.name)}. The ${TL} should be close by.`);
           else if (o.c === 'person' && o.lastLen > 1) say(`That's a person. I'll give them space.`);
-          else if (focal || S.spoken.has('blk:' + o.id)) say(`Just ${art(o.name)}.`);
+          else if (focal || S.spoken.has('blk:' + o.id)) say(`It's ${art(o.name)}.`);
         }
         if (len > 1 && o.lastLen === 0 && o.c === 'person' && !S.spoken.has('person:' + o.id)){
           say(`Someone might be there: ${orList(labelSet(o))}. Keeping my distance.`);
@@ -954,6 +1016,7 @@
       }
       sense();
       narrateResolutions();
+      updateBeliefs();
       const sig = signature();
       const f = decide();
       const changed = !sameFocus(f, S.focus);
@@ -1407,9 +1470,6 @@
       if (k === 'wood') wood(r.x, r.y, r.w, r.h, b, r.name === 'Study'); else if (k === 'tile') tile(r.x, r.y, r.w, r.h, b); else concrete(r.x, r.y, r.w, r.h, b); }
     for (const [rx, ry, rw, rh, col] of [[95, 140, 230, 150, [150, 72, 60]], [60, 590, 250, 170, [96, 118, 140]], [40, 372, 70, 56, [70, 66, 62]]]){
       x.fillStyle = rgb(col); x.fillRect(rx, ry, rw, rh); x.strokeStyle = rgb(col.map(v => Math.min(255, v + 40))); x.lineWidth = 2; x.strokeRect(rx + 6, ry + 6, rw - 12, rh - 12); }
-    x.font = `italic 22px ${FONT}`; x.fillStyle = 'rgba(40,30,22,.6)';
-    for (const r of ROOMS){ const top = r.doors.some(d => d.s === 't'); x.fillText(r.name, r.x + 16, top ? r.y + r.h - 16 : r.y + 32); }
-    x.fillText('Foyer', 46, 458);
     return c;
   }
 
@@ -1668,6 +1728,24 @@
       el.style.opacity = 1; el.style.left = p[0].toFixed(1) + 'px'; el.style.top = y.toFixed(1) + 'px';
     }
   }
+  const roomLabels = new Map();
+  function updateRoomLabels(S, VP){
+    for (const b of S.beliefs){
+      let el = roomLabels.get(b.name);
+      if (!el){ el = document.createElement('div'); overlay.insertBefore(el, overlay.firstChild); roomLabels.set(b.name, el); }
+      const g = b.guess ? RTYPE[b.guess] : null;
+      let txt = '', cls = 'room';
+      if (b.status === 'out'){ txt = `✕ ${g || 'not it'}`; cls += ' out'; }
+      else if (b.status === 'likely'){ txt = `${g || 'this room'} ✓`; cls += ' likely'; }
+      else if (b.status === 'searched'){ txt = `${g || 'room'} · searched`; cls += ' out'; }
+      else if (g){ txt = `${g}?`; }
+      if (el.textContent !== txt) el.textContent = txt;
+      if (el.className !== cls) el.className = cls;
+      const p = txt && project(VP, (b.x + b.w / 2) * M, 0.05, (b.y + b.h / 2) * M);
+      if (!p){ el.style.opacity = 0; continue; }
+      el.style.opacity = 1; el.style.left = p[0].toFixed(1) + 'px'; el.style.top = p[1].toFixed(1) + 'px';
+    }
+  }
   let bubbleIdx = 0, bubbleUntil = 0, bubbleShown = null, thinkUntil = 0;
   function updateBubble(S, VP, now){
     const ev = S.events;
@@ -1780,6 +1858,7 @@
     }
     gl.depthMask(true); gl.disable(gl.BLEND);
 
+    updateRoomLabels(S, VP);
     updateLabels(S, VP);
     updateBubble(S, VP, now);
   }
@@ -1822,6 +1901,8 @@
     if (world){ world.maskX.clearRect(0, 0, W / 2, H / 2); world.balls.clear(); }
     for (const el of labels.values()) el.remove();
     labels.clear();
+    for (const el of roomLabels.values()) el.remove();
+    roomLabels.clear();
     bubbleIdx = 0; bubbleUntil = 0; bubbleShown = null; thinkUntil = 0; bubbleEl.className = 'bubble';
     RB.lastX = START.x; RB.lastY = START.y; RB.walk = 0; RB.reach = 0;
     cam.init = false;
