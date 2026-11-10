@@ -6,7 +6,7 @@
 <title>David Smith Sundarsingh</title>
 <meta name="description" content="Ph.D. student at Washington University in St. Louis working on provably safe planning and task interpretation for robots, using conformal prediction to quantify the uncertainty of AI-enabled perception and foundation models.">
 <meta name="author" content="David Smith Sundarsingh">
-<meta name="theme-color" content="#0b271d">
+<meta name="theme-color" content="#000000">
 <link rel="canonical" href="https://davidsundarsingh.github.io/">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/profile.jpg">
@@ -30,21 +30,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0b271d;
-    --panel:#0e3024;
-    --ink:#e8eee6;
-    --ink-2:#bfd0c4;
-    --muted:#86a595;
-    --rule:rgba(232,238,230,.16);
-    --rule-strong:rgba(232,238,230,.42);
-    --green:#7ad3a5;
-    --red:#e36a5f;
+    --bg:#000000;
+    --panel:#0b0b0a;
+    --ink:#FEFFFA;
+    --ink-2:rgba(254,255,250,.74);
+    --muted:rgba(254,255,250,.5);
+    --rule:rgba(254,255,250,.12);
+    --rule-strong:rgba(254,255,250,.3);
+    --accent:#D23A00;
+    --accent-2:#ff6a2b;
+    --green:var(--accent);
+    --red:#ff4d3d;
     --serif:"Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{
-    margin:0;background:var(--bg);color:var(--ink);
+    margin:0;color:var(--ink);
+    background:
+      radial-gradient(70vw 60vh at 92% -10%, rgba(210,58,0,.30), transparent 65%),
+      radial-gradient(60vw 50vh at -10% 110%, rgba(210,58,0,.14), transparent 70%),
+      var(--bg);
+    background-attachment:fixed;
     font-family:var(--serif);font-size:17.5px;line-height:1.65;
     -webkit-font-smoothing:antialiased;
     font-feature-settings:"kern","liga","onum";
@@ -67,7 +74,7 @@
     padding:48px 0;border-top:1px solid var(--rule);scroll-margin-top:0;
   }
   .stage{
-    width:min(1100px, 94vw, calc((100vh - 400px) * 2));
+    width:min(1180px, 94vw, calc((100vh - 400px) * 16 / 9));
     min-width:min(640px, 94vw);
     display:flex;flex-direction:column;gap:10px;
   }
@@ -92,37 +99,57 @@
   select option{background:var(--panel);color:var(--ink);font-style:normal}
   .phi{flex:1 1 auto;min-width:260px}
   #phi .tok{margin:0 .12em;transition:color .3s ease}
-  #phi .tok.amb{color:var(--red)}
+  #phi .tok.amb{color:var(--accent-2)}
   .status{font-size:14px;color:var(--muted)}
   .pill{
     display:inline-block;padding:0 8px;border:1px solid currentColor;border-radius:2px;
     font-variant-caps:all-small-caps;letter-spacing:.08em;font-size:15px;line-height:1.5;
   }
-  .pill.exploit{color:var(--green)}
-  .pill.explore{color:var(--red)}
+  .pill.exploit{color:var(--ink)}
+  .pill.explore{color:var(--accent-2)}
+  .pill.found{color:var(--accent-2);background:rgba(210,58,0,.16)}
   .pill.idle{color:var(--muted)}
   .qa{font-size:14px;color:var(--muted);font-style:italic;min-height:1.5em;margin-top:-4px}
   .qa b{font-style:normal;font-weight:400;color:var(--ink-2)}
   .qa .r{color:var(--red);font-style:normal}
-  .qa .g{color:var(--green);font-style:normal}
+  .qa .g{color:var(--accent-2);font-style:normal}
 
-  .figure{position:relative;border:1px solid var(--rule);background:#eee9e1}
-  canvas{display:block;width:100%;height:auto}
+  .figure{position:relative;border:1px solid var(--rule);background:#000;overflow:hidden;aspect-ratio:16/9;
+    box-shadow:0 30px 80px -40px rgba(210,58,0,.45)}
+  .figure canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+  .figure canvas:active{cursor:grabbing}
+  #overlay{position:absolute;inset:0;pointer-events:none;font-family:var(--serif)}
+  .lab{position:absolute;transform:translate(-50%,-100%);white-space:nowrap;font-size:12px;font-style:italic;
+    padding:1px 6px;border-radius:3px;background:rgba(0,0,0,.62);color:var(--ink);border:1px solid rgba(254,255,250,.25);
+    transition:opacity .25s ease}
+  .lab.amb{color:#ff8a7a;border:1px dashed rgba(255,77,61,.8)}
+  .lab.tgt{color:#fff;background:rgba(210,58,0,.85);border-color:var(--accent-2);font-style:normal}
+  .bubble{position:absolute;transform:translate(-50%,-100%);max-width:min(340px,40%);font-size:13.5px;line-height:1.38;
+    padding:8px 12px;border-radius:12px;background:rgba(254,255,250,.95);color:#111;
+    box-shadow:0 8px 30px rgba(0,0,0,.5);opacity:0;transition:opacity .3s ease;font-style:italic}
+  .bubble.show{opacity:1}
+  .bubble::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;
+    border-top-color:rgba(254,255,250,.95)}
+  .bubble.found{background:var(--accent);color:#fff;font-style:normal;font-weight:600}
+  .bubble.found::after{border-top-color:var(--accent)}
+  .hint{position:absolute;right:10px;bottom:8px;font-size:11.5px;color:var(--muted);font-style:italic}
+  .nogl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-style:italic}
 
   .legend{display:flex;flex-wrap:wrap;gap:3px 20px;font-size:13.5px;line-height:1.5;color:var(--ink-2);margin:0}
   .legend > span{white-space:nowrap}
   .sw{display:inline-block;width:11px;height:11px;vertical-align:-1px;margin:0 3px 0 2px;border:1.4px solid}
-  .sw.red{border-color:var(--red);background:rgba(227,106,95,.2);border-style:dashed}
-  .sw.green{border-color:var(--green);background:rgba(122,211,165,.18)}
+  .sw.grey{border-color:rgba(254,255,250,.3);background:rgba(254,255,250,.08)}
+  .ball{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-1px;margin:0 4px 0 2px;
+    background:radial-gradient(circle at 50% 50%,rgba(255,60,50,.15) 40%,rgba(255,60,50,.75) 100%);border:1px solid rgba(255,77,61,.8)}
+  .tagk{display:inline-block;font-size:11px;font-style:italic;padding:0 4px;margin:0 4px 0 2px;border:1px dashed rgba(255,77,61,.8);
+    color:#ff8a7a;border-radius:3px;line-height:1.4}
   .ln{display:inline-block;width:18px;height:0;vertical-align:3px;margin:0 3px 0 2px;border-top:2.5px solid}
-  .ln.red{border-color:var(--red)}
-  .ln.green{border-color:var(--green)}
-  .ln.dash{border-top:1.6px dashed var(--green);opacity:.75}
-  .sw.grey{border-color:rgba(232,238,230,.3);background:rgba(232,238,230,.05)}
-  .el{display:inline-block;width:18px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1px dashed rgba(232,238,230,.7);border-radius:50%;
-      background:radial-gradient(circle,#2c3038 0 2.5px,#fff 3px 3.6px,rgba(90,150,220,.55) 4px,transparent 8px)}
-  .gl{display:inline-block;width:12px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1.5px solid var(--green);border-radius:50%;
-      background:linear-gradient(var(--green),var(--green)) center/6px 1.5px no-repeat,linear-gradient(var(--green),var(--green)) center/1.5px 6px no-repeat}
+  .ln.white{border-color:var(--ink)}
+  .ln.orange{border-color:var(--accent-2)}
+  .ln.dash{border-top:1.6px dashed var(--ink);opacity:.7}
+  .el{display:inline-block;width:18px;height:12px;vertical-align:-1px;margin:0 3px 0 2px;border:1px solid rgba(120,180,255,.8);border-radius:50%;
+      background:radial-gradient(circle,rgba(90,160,255,.6) 0 3px,rgba(90,160,255,.15) 5px,transparent 8px)}
+  .bub{display:inline-block;width:16px;height:11px;vertical-align:-1px;margin:0 4px 0 2px;border-radius:5px;background:var(--ink)}
 
   .key-wrap{border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);padding:5px 0 6px}
   .key-head{
@@ -137,8 +164,9 @@
   .kr .kn{color:var(--ink);min-width:4em}
   .kr .ks{font-style:italic;flex:1;overflow:hidden;text-overflow:ellipsis}
   .kr .kd{font-variant-numeric:tabular-nums lining-nums}
-  .kr.open .ks,.kr.open .kd{color:var(--red)}
-  .kr.res .ks,.kr.res .kd{color:var(--green)}
+  .kr.open .ks,.kr.open .kd{color:#ff8a7a}
+  .kr.res .ks,.kr.res .kd{color:var(--ink)}
+  .kr.tgt .ks,.kr.tgt .kd,.kr.tgt .kn{color:var(--accent-2)}
   .key-empty{color:var(--muted);font-style:italic;font-size:13.5px;grid-column:1/-1}
 
   .scroll-cue{
@@ -150,14 +178,15 @@
   @keyframes cue{0%,100%{opacity:.3}50%{opacity:1}}
 
   /* ================= HOMEPAGE ================= */
-  main{max-width:720px;margin:0 auto;padding:84px 28px 110px;border-top:1px solid var(--rule)}
+  main{max-width:720px;margin:0 auto;padding:84px 28px 110px}
   .reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
   .reveal.in{opacity:1;transform:none}
 
   .masthead{display:flex;align-items:center;gap:30px;text-align:left;margin-bottom:34px}
   .portrait{
     flex:0 0 auto;width:156px;height:156px;object-fit:cover;display:block;
-    border-radius:50%;border:1px solid var(--rule-strong);padding:4px;background:var(--panel);
+    border-radius:50%;border:1px solid rgba(210,58,0,.7);padding:4px;background:var(--panel);
+    box-shadow:0 0 0 6px rgba(210,58,0,.08), 0 0 60px rgba(210,58,0,.35);
   }
   .masthead-text{min-width:0}
   @media (max-width:560px){
@@ -176,7 +205,7 @@
   .links .dot{color:var(--muted);margin:0 10px}
 
   h2{
-    font-size:17px;font-weight:600;margin:0 0 14px;
+    font-size:17px;font-weight:600;margin:0 0 14px;color:var(--ink);
     font-variant-caps:all-small-caps;letter-spacing:.1em;color:var(--ink);
     border-bottom:1px solid var(--rule);padding-bottom:6px;
   }
@@ -189,7 +218,7 @@
     font-style:italic;font-size:21px;line-height:1.5;color:var(--ink);
   }
   .epigraph::before,.epigraph::after{
-    content:"";display:block;width:48px;height:1px;background:var(--rule-strong);margin:0 auto;
+    content:"";display:block;width:48px;height:1px;background:var(--accent);margin:0 auto;
   }
   .epigraph::before{margin-bottom:22px}
   .epigraph::after{margin-top:22px}
@@ -263,37 +292,38 @@
       <h2 class="demo-title">Interactive demo</h2>
       <div class="fig-head">
         <label class="instr"><span class="sym">ξ</span><select id="task" aria-label="Natural-language instruction">
-          <option value="kitchStudy">Go through the kitchen toward the study.</option>
-          <option value="livKitch">Go to the living room, then to the kitchen.</option>
-          <option value="tour">Visit the living room, the kitchen, then the study.</option>
-          <option value="bedBath">Go to the bedroom, then to the bathroom.</option>
-          <option value="bathGarage">Pass through the bathroom on the way to the garage.</option>
-          <option value="studyGarage">Go to the study, then to the garage.</option>
+          <option value="fridge">Find the fridge.</option>
+          <option value="tv">Find the TV.</option>
+          <option value="bed">Find the bed.</option>
+          <option value="tub">Find the bathtub.</option>
+          <option value="printer">Find the printer.</option>
+          <option value="bike">Find the bike.</option>
         </select></label>
         <div class="phi"><span class="sym">φ</span>=&nbsp;<span id="phi"></span></div>
         <div class="status"><span id="mode" class="pill idle">idle</span></div>
       </div>
       <div class="qa" id="qa">&nbsp;</div>
 
-      <div class="figure">
-        <canvas id="scene" width="1600" height="800" role="img"
-          aria-label="Floor plan of a house with hallways. A robot navigates to a goal while keeping class-dependent distances from detected objects; ambiguous detections are shown in red, resolved ones in green."></canvas>
+      <div class="figure" id="figure">
+        <canvas id="scene" role="img"
+          aria-label="3D view of a house. A humanoid robot searches for an object, keeping class-dependent distances, shown as red balls, from everything it detects; speech bubbles show its reasoning."></canvas>
+        <div id="overlay"><div class="bubble" id="bubble"></div><div class="hint">drag to orbit · pinch or ctrl+scroll to zoom · double-click to reset</div></div>
       </div>
 
       <p class="legend" aria-label="Legend">
-        <span><span class="sw red"></span>uncertain object (prediction set has several classes)</span>
-        <span><span class="sw green"></span>identified object (single class)</span>
+        <span><span class="ball"></span>avoidance region (class-based distance)</span>
+        <span><span class="tagk">{a, b}</span>conformal prediction set</span>
         <span><span class="sw grey"></span>not yet observed</span>
-        <span><span class="ln red"></span>exploration path</span>
-        <span><span class="ln green"></span>exploitation path</span>
+        <span><span class="ln white"></span>exploitation path</span>
+        <span><span class="ln orange"></span>exploration path</span>
         <span><span class="ln dash"></span>planned path</span>
         <span><span class="el"></span>robot state uncertainty</span>
-        <span><span class="gl"></span>goal</span>
+        <span><span class="bub"></span>robot's reasoning</span>
       </p>
 
       <div class="key-wrap">
         <div class="key-head">
-          <span>Detected objects: prediction set 𝒞<sub><i>j</i></sub> and required clearance <i>d<sub>j</sub></i> = max<sub><i>k</i>∈𝒞<sub><i>j</i></sub></sub> <i>d<sub>k</sub></i></span>
+          <span>Detected objects: prediction set 𝒞<sub><i>j</i></sub> and required clearance <i>d<sub>j</sub></i> = max<sub><i>k</i>∈𝒞<sub><i>j</i></sub>∖{target}</sub> <i>d<sub>k</sub></i></span>
           <span id="stats">1 − α = 0.95</span>
         </div>
         <div class="key" id="key"><span class="key-empty">No objects detected yet.</span></div>
@@ -362,13 +392,14 @@
 
 /*SIM-START*/
   /* ============================================================
-     Simulation core (no DOM). Faithful to Alg. 2 of [1]:
-     - objects are unknown until sensed; walls are a known prior map
+     Simulation core (no DOM).
+     Semantic object search on top of the safe planner of [1]:
+     - walls are a known prior map; objects are unknown until seen (line of sight)
      - each detected object j carries a conformal label set C_j
-     - the planner assigns k_j = argmax_{k in C_j} d_k and requires
-         || x - c_j || >= d_{k_j} + r_m          (eq. 6 of [1])
-     - exploitation: A* over the conservative map
-     - exploration: if no path exists, move to shrink an unresolved C_j
+     - required clearance from j is max_{k in C_j \ {target}} d_k + r_m:
+       once j is identified as the target its distance no longer applies
+     - the robot reasons with room priors and "anchor" objects, inspects
+       ambiguous detections, and reaches/touches the target when identified
      ============================================================ */
   const W = 1600, H = 800;
   const PX_PER_M = 80;                 // 1 m = 80 px
@@ -379,13 +410,17 @@
   const WALL_REQ = WALL_D + R_M + ROBOT_R;
   const R_SENSE = 290;                 // camera range (line of sight)
   const SPAN = 90;                     // range over which alternative labels are ruled out
-  const SPEED = 1.7;                   // px per step (≈1.3 m/s)
+  const SPEED = 1.5;                   // px per step (≈1.1 m/s)
+  const TOUCH_REQ = 14;                // identified target: only physical contact limit
+  const TOUCH_DIST = 26;               // close enough to touch
   const START = {x:70, y:400};
   const OUTER = {x:30, y:30, w:1540, h:740};
+  const OUTER_DOORS = [{s:'l', a:368, b:432}];          // front door into the foyer
+  const PARTITIONS = [{x1:910, y1:30, x2:910, y2:220}];  // pantry wall in the kitchen
 
   const ROOMS = [
     {name:'Living room', x:30,   y:30,  w:427, h:305, doors:[{s:'b', a:300,  b:400}]},
-    {name:'Kitchen',     x:587,  y:30,  w:426, h:305, doors:[{s:'b', a:820,  b:920}, {s:'l', a:180, b:280}]},
+    {name:'Kitchen',     x:587,  y:30,  w:426, h:305, doors:[{s:'b', a:640,  b:740}, {s:'l', a:180, b:280}]},
     {name:'Study',       x:1143, y:30,  w:427, h:305, doors:[{s:'l', a:200,  b:300}, {s:'b', a:1400, b:1500}]},
     {name:'Bedroom',     x:30,   y:465, w:427, h:305, doors:[{s:'t', a:300,  b:400}]},
     {name:'Bathroom',    x:587,  y:465, w:426, h:305, doors:[{s:'r', a:560,  b:660}]},
@@ -397,109 +432,120 @@
     person:   {d:1.20, label:'person'},
     car:      {d:1.00, label:'car'},
     dog:      {d:0.90, label:'dog'},
+    heater:   {d:0.85, label:'heater'},
     stove:    {d:0.80, label:'stove'},
     fireplace:{d:0.75, label:'fireplace'},
+    cat:      {d:0.70, label:'cat'},
+    bike:     {d:0.50, label:'bike'},
     lamp:     {d:0.45, label:'lamp'},
     fridge:   {d:0.40, label:'fridge'},
     tub:      {d:0.38, label:'bathtub'},
     sink:     {d:0.35, label:'sink'},
     bed:      {d:0.33, label:'bed'},
     sofa:     {d:0.30, label:'sofa'},
-    tv:       {d:0.28, label:'tv'},
+    printer:  {d:0.29, label:'printer'},
+    tv:       {d:0.28, label:'TV'},
+    bench:    {d:0.27, label:'bench'},
     chair:    {d:0.26, label:'chair'},
     table:    {d:0.24, label:'table'},
-    desk:     {d:0.22, label:'desk'},
-    wardrobe: {d:0.20, label:'wardrobe'},
-    shelf:    {d:0.18, label:'shelf'},
-    toolbox:  {d:0.16, label:'toolbox'},
-    plant:    {d:0.14, label:'plant'},
-    coatrack: {d:0.12, label:'coat rack'},
-    heater:   {d:0.85, label:'heater'},
-    cat:      {d:0.70, label:'cat'},
-    bike:     {d:0.50, label:'bike'},
-    printer:  {d:0.29, label:'printer'},
-    bench:    {d:0.27, label:'bench'},
     ottoman:  {d:0.23, label:'ottoman'},
+    desk:     {d:0.22, label:'desk'},
     cabinet:  {d:0.21, label:'cabinet'},
+    wardrobe: {d:0.20, label:'wardrobe'},
     bin:      {d:0.19, label:'bin'},
+    shelf:    {d:0.18, label:'shelf'},
     basket:   {d:0.17, label:'basket'},
+    toolbox:  {d:0.16, label:'toolbox'},
     stool:    {d:0.15, label:'stool'},
+    plant:    {d:0.14, label:'plant'},
     box:      {d:0.13, label:'box'},
+    coatrack: {d:0.12, label:'coat rack'},
     crate:    {d:0.11, label:'crate'},
     umbrella: {d:0.09, label:'umbrella stand'}
   };
 
   // c: ground-truth class; alts: labels that stay in C_j until the object is observed up close
   const OBJECT_DEFS = [
+    // living room
     {c:'lamp',     alts:['person','coatrack'], x:45,   y:45,  w:24,  h:24},
     {c:'sofa',     alts:['bed'],               x:110,  y:60,  w:180, h:60},
     {c:'tv',       alts:['fireplace'],         x:425,  y:60,  w:18,  h:100},
     {c:'plant',    alts:['dog'],               x:70,   y:200, w:36,  h:36},
-    {c:'fridge',   alts:['stove'],             x:605,  y:45,  w:70,  h:90},
-    {c:'stove',    alts:['sink'],              x:925,  y:45,  w:70,  h:70},
-    {c:'table',    alts:['desk','chair'],      x:690,  y:140, w:150, h:70},
-    {c:'desk',     alts:['table'],             x:1230, y:50,  w:190, h:70},
-    {c:'chair',    alts:['dog'],               x:1250, y:200, w:50,  h:50},
-    {c:'shelf',    alts:['wardrobe','fridge'], x:1520, y:150, w:36,  h:150},
-    {c:'bed',      alts:['person'],            x:70,   y:600, w:200, h:140},
-    {c:'wardrobe', alts:['fridge'],            x:395,  y:640, w:45,  h:110},
-    {c:'sink',     alts:['stove'],             x:620,  y:485, w:80,  h:50},
-    {c:'tub',      alts:['bed','person'],      x:800,  y:680, w:170, h:70},
-    {c:'car',      alts:['toolbox'],           x:1170, y:630, w:240, h:100},
-    {c:'toolbox',  alts:['dog'],               x:1500, y:690, w:50,  h:40},
-    {c:'coatrack', alts:['person'],            x:1115, y:505, w:24,  h:24},
-    // clutter
     {c:'ottoman',  alts:['dog'],               x:170,  y:165, w:50,  h:40},
     {c:'cabinet',  alts:['fridge'],            x:60,   y:280, w:90,  h:35},
-    {c:'umbrella', alts:['person'],            x:548,  y:60,  w:26,  h:26},
-    {c:'bin',      alts:['dog'],               x:960,  y:250, w:30,  h:30},
-    {c:'stool',    alts:['chair'],             x:860,  y:160, w:26,  h:26},
-    {c:'printer',  alts:['stove'],             x:1160, y:50,  w:50,  h:40},
+    {c:'person',   alts:['coatrack'],          x:130,  y:135, w:32,  h:32},
+    // kitchen
+    {c:'sink',     alts:['stove'],             x:660,  y:45,  w:90,  h:50},
+    {c:'stove',    alts:['sink'],              x:790,  y:45,  w:70,  h:70},
+    {c:'fridge',   alts:['wardrobe'],          x:935,  y:45,  w:60,  h:80},
+    {c:'table',    alts:['desk','chair'],      x:600,  y:150, w:80,  h:60},
+    // study
+    {c:'printer',  alts:['stove'],             x:1170, y:50,  w:50,  h:40},
+    {c:'desk',     alts:['table'],             x:1260, y:50,  w:170, h:70},
+    {c:'chair',    alts:['dog'],               x:1250, y:200, w:50,  h:50},
+    {c:'shelf',    alts:['wardrobe','fridge'], x:1520, y:150, w:36,  h:150},
     {c:'box',      alts:['cat'],               x:1330, y:280, w:34,  h:30},
+    {c:'person',   alts:['coatrack'],          x:1460, y:60,  w:30,  h:30},
+    // bedroom
+    {c:'bed',      alts:['person'],            x:70,   y:600, w:200, h:140},
+    {c:'wardrobe', alts:['fridge'],            x:395,  y:640, w:45,  h:110},
     {c:'basket',   alts:['cat'],               x:300,  y:700, w:40,  h:40},
+    // bathroom
+    {c:'sink',     alts:['stove'],             x:620,  y:485, w:80,  h:50},
+    {c:'tub',      alts:['bed','person'],      x:800,  y:680, w:170, h:70},
     {c:'heater',   alts:['sink'],              x:600,  y:700, w:26,  h:26},
-    {c:'bike',     alts:['person'],            x:1240, y:520, w:100, h:60},
-    {c:'crate',    alts:['toolbox'],           x:1460, y:620, w:40,  h:40},
+    // garage
+    {c:'car',      alts:['toolbox'],           x:1250, y:660, w:240, h:95},
+    {c:'bike',     alts:['person'],            x:1180, y:500, w:100, h:55},
+    {c:'toolbox',  alts:['dog'],               x:1500, y:690, w:50,  h:40},
+    {c:'crate',    alts:['toolbox'],           x:1510, y:560, w:40,  h:40},
+    // hallways
+    {c:'coatrack', alts:['person'],            x:1115, y:505, w:24,  h:24},
+    {c:'umbrella', alts:['person'],            x:548,  y:60,  w:26,  h:26},
     {c:'bench',    alts:['sofa'],              x:600,  y:440, w:90,  h:22}
   ];
 
+  // where the robot looks inside each room
+  const VIEWPOINTS = {
+    'Kitchen':     [{x:700,  y:285}, {x:962,  y:285}],
+    'Living room': [{x:350,  y:285}, {x:360,  y:190}],
+    'Bedroom':     [{x:340,  y:530}, {x:180,  y:525}],
+    'Bathroom':    [{x:950,  y:560}, {x:760,  y:620}],
+    'Study':       [{x:1200, y:285}, {x:1450, y:240}],
+    'Garage':      [{x:1440, y:525}, {x:1480, y:600}]
+  };
+
   const piAP = s => ['π:' + s];
   const SAFE = [['∧'], ['□'], piAP('safe')];
-  const GOAL = {
-    kitchen:{x:740, y:290}, living:{x:340, y:220}, bedroom:{x:330, y:560},
-    bathroom:{x:900, y:590}, study:{x:1420, y:230}, garage:{x:1500, y:550}
-  };
-  // sequenced reach task:  ◇(π_a ∧ ◇(π_b ∧ ◇ π_c)) ∧ □ π_safe
-  // amb = {index of QA step: extra labels in the primary LLM's prediction set}
-  function seqTask(aps, amb = {}){
-    const phi = [];
-    aps.forEach((a, i) => {
-      phi.push(['◇']);
-      if (i < aps.length - 1) phi.push(['(']);
-      phi.push(piAP(a));
-      if (i < aps.length - 1) phi.push(['∧']);
-    });
-    for (let i = 0; i < aps.length - 1; i++) phi.push([')']);
-    phi.push(...SAFE);
-    for (const [k, extra] of Object.entries(amb)) phi[+k] = [...phi[+k], ...extra];
-    return {goals: aps.map(a => ({...GOAL[a], ap:a})), phi};
-  }
+  // search tasks: the target class, the room prior, and objects that suggest the target is close
   const TASKS = {
-    livKitch:    seqTask(['living', 'kitchen'],           {4: ['□']}),
-    kitchStudy:  seqTask(['kitchen', 'study']),
-    tour:        seqTask(['living', 'kitchen', 'study'],  {3: ['∨']}),
-    bedBath:     seqTask(['bedroom', 'bathroom']),
-    bathGarage:  seqTask(['bathroom', 'garage'],          {4: ['□']}),
-    studyGarage: seqTask(['study', 'garage'])
+    fridge:  {target:'fridge',  rooms:['Kitchen'],     anchors:['stove', 'sink'],      amb:{1:['π:freezer']}},
+    tv:      {target:'tv',      rooms:['Living room'], anchors:['sofa']},
+    bed:     {target:'bed',     rooms:['Bedroom'],     anchors:['wardrobe', 'basket']},
+    tub:     {target:'tub',     rooms:['Bathroom'],    anchors:['sink', 'heater'],     amb:{1:['π:sink']}},
+    printer: {target:'printer', rooms:['Study'],       anchors:['desk', 'shelf']},
+    bike:    {target:'bike',    rooms:['Garage'],      anchors:['car', 'toolbox']}
   };
+  for (const t of Object.values(TASKS)){
+    t.phi = [['◇'], piAP(t.target), ...SAFE];
+    for (const [k, extra] of Object.entries(t.amb || {})) t.phi[+k] = [...t.phi[+k], extra];
+  }
 
   /* ---------- geometry ---------- */
   const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
 
   function buildWalls(){
     const o = OUTER, segs = [];
-    segs.push({x1:o.x, y1:o.y, x2:o.x+o.w, y2:o.y}, {x1:o.x+o.w, y1:o.y, x2:o.x+o.w, y2:o.y+o.h},
-              {x1:o.x, y1:o.y+o.h, x2:o.x+o.w, y2:o.y+o.h}, {x1:o.x, y1:o.y, x2:o.x, y2:o.y+o.h});
+    const side = (s, fixed, lo, hi, horiz, doors) => {
+      const add = (a, b) => segs.push(horiz ? {x1:a, y1:fixed, x2:b, y2:fixed} : {x1:fixed, y1:a, x2:fixed, y2:b});
+      let cur = lo;
+      for (const d of doors.filter(d => d.s === s).sort((p, q) => p.a - q.a)){ if (d.a > cur) add(cur, d.a); cur = d.b; }
+      if (cur < hi) add(cur, hi);
+    };
+    side('t', o.y, o.x, o.x + o.w, true, OUTER_DOORS);
+    side('b', o.y + o.h, o.x, o.x + o.w, true, OUTER_DOORS);
+    side('l', o.x, o.y, o.y + o.h, false, OUTER_DOORS);
+    side('r', o.x + o.w, o.y, o.y + o.h, false, OUTER_DOORS);
     const onOuter = (s, r) => (s==='t' && r.y===o.y) || (s==='b' && r.y+r.h===o.y+o.h) ||
                               (s==='l' && r.x===o.x) || (s==='r' && r.x+r.w===o.x+o.w);
     for (const r of ROOMS){
@@ -507,13 +553,10 @@
         if (onOuter(s, r)) continue;
         const horiz = s==='t' || s==='b';
         const fixed = s==='t' ? r.y : s==='b' ? r.y+r.h : s==='l' ? r.x : r.x+r.w;
-        const lo = horiz ? r.x : r.y, hi = horiz ? r.x+r.w : r.y+r.h;
-        const add = (a, b) => segs.push(horiz ? {x1:a, y1:fixed, x2:b, y2:fixed} : {x1:fixed, y1:a, x2:fixed, y2:b});
-        let cur = lo;
-        for (const d of r.doors.filter(d => d.s===s).sort((p,q) => p.a-q.a)){ if (d.a > cur) add(cur, d.a); cur = d.b; }
-        if (cur < hi) add(cur, hi);
+        side(s, fixed, horiz ? r.x : r.y, horiz ? r.x+r.w : r.y+r.h, horiz, r.doors);
       }
     }
+    for (const p of PARTITIONS) segs.push({...p});
     return segs;
   }
   const WALLS = buildWalls();
@@ -544,8 +587,8 @@
     const dy = Math.max(o.y - py, 0, py - (o.y + o.h));
     return Math.hypot(dx, dy);
   }
-  // An object is sensed only if the sensor footprint actually reaches it: some point on its
-  // outline lies within range R_SENSE and has an unobstructed line of sight (walls occlude).
+  // An object is sensed only if the sensor footprint reaches it: some point on its outline
+  // lies within range and has an unobstructed line of sight (walls occlude).
   const OUTLINE = new Map();
   function outline(o){
     const key = o.x + ',' + o.y;
@@ -564,6 +607,7 @@
     }
     return false;
   }
+  const roomAt = (x, y) => ROOMS.find(r => x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h);
 
   /* ---------- conformal label sets ---------- */
   function labelSet(o){
@@ -572,7 +616,12 @@
     const keep = Math.ceil(n * f);                 // alternatives still in C_j (largest d_k ruled out first)
     return [o.c, ...o.altsDesc.slice(n - keep)];   // the true label is never removed
   }
-  const padOf = o => Math.max(...labelSet(o).map(k => CLASSES[k].d)) * PX_PER_M;
+  // clearance (px) the planner keeps from o; labels equal to the search target are exempt
+  function padOf(o, target){
+    const ks = labelSet(o).filter(k => k !== target);
+    return ks.length ? Math.max(...ks.map(k => CLASSES[k].d)) * PX_PER_M : 0;
+  }
+  const isTarget = (o, target) => { const s = labelSet(o); return s.length === 1 && s[0] === target; };
   const ambiguity = o => clamp01((o.minGap - o.rRes) / SPAN);
 
   /* ---------- occupancy grid ---------- */
@@ -588,21 +637,30 @@
   })();
   const DIRS = [[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,Math.SQRT2],[1,-1,Math.SQRT2],[-1,1,Math.SQRT2],[-1,-1,Math.SQRT2]];
 
+  const art = w => (/^[aeiou]/.test(w) ? 'an ' : 'a ') + w;
+  const lab = k => CLASSES[k].label;
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+  const orList = ks => ks.length === 2 ? `${art(lab(ks[0]))} or ${art(lab(ks[1]))}`
+                                       : ks.slice(0, -1).map(k => art(lab(k))).join(', ') + ` or ${art(lab(ks[ks.length - 1]))}`;
+
   function createSim(taskKey){
-    const task = TASKS[taskKey];
+    const task = TASKS[taskKey], T = task.target, TL = lab(T);
     const objs = OBJECT_DEFS.map((d, id) => {
       const altsDesc = [...d.alts].sort((a, b) => CLASSES[b].d - CLASSES[a].d);
       const fullPad = Math.max(CLASSES[d.c].d, ...d.alts.map(a => CLASSES[a].d)) * PX_PER_M;
       return {...d, id, name:CLASSES[d.c].label, altsDesc, fullPad, truePad:CLASSES[d.c].d * PX_PER_M,
-              rRes: fullPad + R_M + ROBOT_R + 26, minGap:Infinity, seen:false, visible:false, order:-1};
+              rRes: fullPad + R_M + ROBOT_R + 26, minGap:Infinity, seen:false, visible:false, order:-1, lastLen:0};
     });
     const S = {
-      robot:{x:START.x, y:START.y}, heading:0, sigma:5,
-      goals:task.goals, gi:0, path:[], mode:'exploit', trail:[], done:false,
-      frame:0, sig:'', retryAt:0, explorations:0, seenCount:0, objs
+      robot:{x:START.x, y:START.y}, heading:0, sigma:5, target:T, task,
+      path:[], mode:'exploit', trail:[], done:false, frame:0, sig:'', retryAt:0, explorations:0, seenCount:0,
+      objs, events:[], focus:null, roomIdx:0, visited:new Set(), skip:new Set(), touch:null, found:null,
+      goal:null, spoken:new Set()
     };
+    const say = (text, kind = 'think') => { const last = S.events[S.events.length - 1];
+      if (!last || last.text !== text) S.events.push({f:S.frame, text, kind}); };
 
-    const req = o => padOf(o) + R_M + ROBOT_R;
+    const req = o => isTarget(o, T) ? TOUCH_REQ : padOf(o, T) + R_M + ROBOT_R;
     function freePlan(x, y){
       if (wallDist(x, y) < WALL_REQ) return false;
       for (const o of objs) if (o.seen && rectGap(x, y, o) < req(o)) return false;
@@ -612,8 +670,8 @@
       const g = WALL_OK.slice();
       for (const o of objs){
         if (!o.seen) continue;
-        // relax: optimistic check that assumes o's least-conservative label
-        const r = relax && relax.has(o) ? Math.min(...labelSet(o).map(k => CLASSES[k].d)) * PX_PER_M + R_M + ROBOT_R : req(o);
+        const r = relax && relax.has(o)
+          ? Math.min(...labelSet(o).map(k => k === T ? 0 : CLASSES[k].d)) * PX_PER_M + R_M + ROBOT_R : req(o);
         const i0 = Math.max(0, Math.floor((o.x - r) / CELL)), i1 = Math.min(GW-1, Math.floor((o.x + o.w + r) / CELL));
         const j0 = Math.max(0, Math.floor((o.y - r) / CELL)), j1 = Math.min(GH-1, Math.floor((o.y + o.h + r) / CELL));
         for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++){
@@ -682,15 +740,33 @@
       }
       return {dist, par};
     }
+    const trace = (par, k) => { const out = []; for (; k !== -1; k = par[k]) out.push(k); return out.reverse(); };
 
-    // Exploration: approach an unresolved object to shrink its prediction set
-    function explore(g, s){
-      const goal = S.goals[S.gi], R = S.robot;
+    // closest reachable viewpoint on o (line of sight), improving on what has been seen so far
+    function inspectCells(g, s, o, bfsRes){
+      const {dist, par} = bfsRes || bfs(g, s);
+      const ext = o.rRes + SPAN;
+      const i0 = Math.max(0, Math.floor((o.x - ext) / CELL)), i1 = Math.min(GW-1, Math.floor((o.x + o.w + ext) / CELL));
+      const j0 = Math.max(0, Math.floor((o.y - ext) / CELL)), j1 = Math.min(GH-1, Math.floor((o.y + o.h + ext) / CELL));
+      let best = -1, bg = Infinity, bd = Infinity;
+      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++){
+        const k = j*GW + i;
+        if (dist[k] < 0) continue;
+        const gp = rectGap(ccx(i), ccy(j), o);
+        if (gp >= o.minGap - 2 || gp > R_SENSE) continue;
+        if (gp < bg - 0.5 || (Math.abs(gp - bg) <= 0.5 && dist[k] < bd)){
+          if (!visibleObj(ccx(i), ccy(j), o)) continue;
+          best = k; bg = gp; bd = dist[k];
+        }
+      }
+      return best >= 0 ? trace(par, best) : null;
+    }
+
+    // Alg. 2 exploration: resolve the ambiguities that block the way to `goal`
+    function explore(g, s, goal){
+      const R = S.robot;
       const unresolved = objs.filter(o => o.seen && labelSet(o).length > 1);
       if (!unresolved.length) return null;
-      // Which ambiguities block the goal? Plan optimistically (every unresolved
-      // object at its least-conservative label) and collect the unresolved objects
-      // that this optimistic route would pass too close to, in route order.
       const t = cellOf(goal);
       const opt = astar(grid(new Set(unresolved)), s, t);
       const blockers = [];
@@ -698,27 +774,10 @@
         const x = ccx(k % GW), y = ccy((k / GW) | 0);
         for (const o of unresolved) if (!blockers.includes(o) && rectGap(x, y, o) < req(o)) blockers.push(o);
       }
-      const near = o => Math.min(rectGap(R.x, R.y, o), rectGap(goal.x, goal.y, o));
-      const rest = unresolved.filter(o => !blockers.includes(o) && near(o) < 420)
-        .sort((a, b) => near(a) - near(b));
-      const cands = [...blockers, ...rest];
-      const {dist, par} = bfs(g, s);
-      for (const o of cands){
-        const ext = o.rRes + SPAN;
-        const i0 = Math.max(0, Math.floor((o.x - ext) / CELL)), i1 = Math.min(GW-1, Math.floor((o.x + o.w + ext) / CELL));
-        const j0 = Math.max(0, Math.floor((o.y - ext) / CELL)), j1 = Math.min(GH-1, Math.floor((o.y + o.h + ext) / CELL));
-        let best = -1, bg = Infinity, bd = Infinity;
-        for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++){
-          const k = j*GW + i;
-          if (dist[k] < 0) continue;
-          const gp = rectGap(ccx(i), ccy(j), o);
-          if (gp >= o.minGap - 2 || gp > R_SENSE) continue;
-          if (gp < bg - 0.5 || (Math.abs(gp - bg) <= 0.5 && dist[k] < bd)){
-            if (!visibleObj(ccx(i), ccy(j), o)) continue;
-            best = k; bg = gp; bd = dist[k];
-          }
-        }
-        if (best >= 0){ const out = []; for (let k = best; k !== -1; k = par[k]) out.push(k); return out.reverse(); }
+      const b = bfs(g, s);
+      for (const o of blockers){
+        const cells = inspectCells(g, s, o, b);
+        if (cells) return {cells, obj:o};
       }
       return null;
     }
@@ -749,13 +808,108 @@
       return smooth(pts).slice(1);
     }
 
-    function replan(){
-      const g = grid(), s = cellOf(S.robot), t = cellOf(S.goals[S.gi]);
-      const cells = astar(g, s, t);
-      if (cells){ S.mode = 'exploit'; S.path = toPath(cells); return; }
-      const e = explore(g, s);
-      if (e){ if (S.mode !== 'explore') S.explorations++; S.mode = 'explore'; S.path = toPath(e); return; }
-      S.mode = 'stuck'; S.path = []; S.retryAt = S.frame + 30;
+    /* ---------- reasoning: what to do next ---------- */
+    const room = () => task.rooms[Math.min(S.roomIdx, task.rooms.length - 1)];
+    const vpKey = (rm, i) => rm + '#' + i;
+    function nextViewpoint(){
+      while (S.roomIdx < task.rooms.length){
+        const rm = task.rooms[S.roomIdx], vps = VIEWPOINTS[rm];
+        const anchors = objs.filter(o => o.seen && labelSet(o).length === 1 && task.anchors.includes(o.c));
+        const order = vps.map((p, i) => ({p, i}))
+          .filter(v => !S.visited.has(vpKey(rm, v.i)))
+          .sort((a, b) => {
+            if (!anchors.length) return a.i - b.i;
+            const da = Math.min(...anchors.map(o => rectGap(a.p.x, a.p.y, o))), db = Math.min(...anchors.map(o => rectGap(b.p.x, b.p.y, o)));
+            return da - db;
+          });
+        if (order.length) return {room:rm, i:order[0].i, p:order[0].p};
+        S.roomIdx++;
+        if (S.roomIdx < task.rooms.length) say(`It isn't in the ${rm.toLowerCase()}. Maybe the ${task.rooms[S.roomIdx].toLowerCase()}?`);
+      }
+      // nothing left in the prior rooms: widen the search to every room, nearest first
+      const all = ROOMS.map(r => r.name).filter(n => !task.rooms.includes(n))
+        .sort((a, b) => { const ra = ROOMS.find(r => r.name === a), rb = ROOMS.find(r => r.name === b);
+          return Math.hypot(ra.x + ra.w/2 - S.robot.x, ra.y + ra.h/2 - S.robot.y) - Math.hypot(rb.x + rb.w/2 - S.robot.x, rb.y + rb.h/2 - S.robot.y); });
+      task.rooms.push(...all);
+      return S.roomIdx < task.rooms.length ? nextViewpoint() : null;
+    }
+
+    function decide(){
+      const R = S.robot;
+      const tgt = objs.find(o => o.seen && isTarget(o, T));
+      if (tgt) return {kind:'reach', obj:tgt};
+      const near = o => rectGap(R.x, R.y, o);
+      // only reason about detections inside the room currently being searched
+      const inRoom = o => { const r = roomAt(o.x + o.w / 2, o.y + o.h / 2); return r && r.name === room(); };
+      const cands = objs.filter(o => o.seen && !S.skip.has(o) && inRoom(o) && labelSet(o).length > 1 && labelSet(o).includes(T))
+                        .sort((a, b) => near(a) - near(b));
+      if (cands.length) return {kind:'inspect', obj:cands[0], why:'candidate'};
+      const anch = objs.filter(o => o.seen && !S.skip.has(o) && inRoom(o) && labelSet(o).length > 1 &&
+                                    labelSet(o).some(k => task.anchors.includes(k)))
+                       .sort((a, b) => near(a) - near(b));
+      if (anch.length) return {kind:'inspect', obj:anch[0], why:'anchor'};
+      const vp = (S.focus && S.focus.kind === 'goto' && !S.visited.has(vpKey(S.focus.room, S.focus.i))) ? S.focus : nextViewpoint();
+      return vp ? {kind:'goto', room:vp.room, i:vp.i, p:vp.p} : null;
+    }
+    const sameFocus = (a, b) => a && b && a.kind === b.kind && a.obj === b.obj && a.room === b.room && a.i === b.i;
+
+    function announce(f, prev){
+      if (f.kind === 'goto'){
+        const rm = f.room.toLowerCase();
+        if (!S.spoken.has('start')){ say(`Find the ${TL}. ${cap(TL)}s are usually in the ${rm}, so I'll head there.`); S.spoken.add('start'); }
+        else if (prev && prev.kind === 'goto' && prev.room === f.room) say(`No ${TL} in sight yet. Let me check the other side of the ${rm}.`);
+        else if (!S.spoken.has('room:' + f.room)) say(`Heading to the ${rm} to keep looking for the ${TL}.`);
+        S.spoken.add('room:' + f.room);
+      } else if (f.kind === 'inspect'){
+        const ks = labelSet(f.obj), others = ks.filter(k => k !== T);
+        const hz = others.sort((a, b) => CLASSES[b].d - CLASSES[a].d)[0];
+        if (f.why === 'candidate')
+          say(`That might be the ${TL}: I think it's ${orList(ks)}. Let me take a closer look, staying ${CLASSES[hz].d.toFixed(2)} m away in case it's ${art(lab(hz))}.`);
+        else {
+          const a = ks.find(k => task.anchors.includes(k));
+          say(`I think that's ${orList(ks)}. ${cap(art(lab(a)))} would mean the ${TL} is close, so let me take a closer look.`);
+        }
+      }
+    }
+
+    function plan(){
+      const g = grid(), s = cellOf(S.robot), f = S.focus;
+      if (!f){ S.path = []; S.mode = 'stuck'; S.retryAt = S.frame + 30; return; }
+      if (f.kind === 'goto'){
+        const cells = astar(g, s, cellOf(f.p));
+        if (cells){ S.mode = 'exploit'; S.path = toPath(cells); S.goal = f.p; return; }
+      } else if (f.kind === 'inspect'){
+        const cells = inspectCells(g, s, f.obj);
+        if (cells){ S.mode = 'explore'; S.path = toPath(cells); S.goal = null; return; }
+        S.skip.add(f.obj); S.focus = null; S.path = []; S.retryAt = S.frame; return;
+      } else if (f.kind === 'reach'){
+        const {dist, par} = bfs(g, s), o = f.obj;
+        let best = -1, bd = Infinity;
+        for (let k = 0; k < dist.length; k++){
+          if (dist[k] < 0 || dist[k] >= bd) continue;
+          const gp = rectGap(ccx(k % GW), ccy((k / GW) | 0), o);
+          if (gp <= TOUCH_DIST - 4 && gp >= TOUCH_REQ){ best = k; bd = dist[k]; }
+        }
+        if (best >= 0){ S.mode = 'exploit'; S.path = toPath(trace(par, best)); S.goal = {x:ccx(best % GW), y:ccy((best / GW) | 0)}; return; }
+      }
+      // blocked: Alg. 2 exploration toward the current goal
+      const goalPt = f.kind === 'goto' ? f.p : {x:f.obj.x + f.obj.w / 2, y:f.obj.y + f.obj.h / 2};
+      const e = explore(g, s, goalPt);
+      if (e){
+        if (S.mode !== 'explore') S.explorations++;
+        if (!S.spoken.has('blk:' + e.obj.id) && labelSet(e.obj).length > 1){
+          const ks = labelSet(e.obj), hz = ks.filter(k => k !== T).sort((a, b) => CLASSES[b].d - CLASSES[a].d)[0];
+          say(ks.includes('person')
+            ? `Something ahead could be a person (${orList(ks)}). I'll keep ${CLASSES[hz].d.toFixed(2)} m away and look closer before passing.`
+            : `I can't tell what's ahead: ${orList(ks)}. Getting a better look before I pass.`);
+          S.spoken.add('blk:' + e.obj.id);
+        }
+        S.mode = 'explore'; S.path = toPath(e.cells); return;
+      }
+      // give up on this sub-goal
+      if (f.kind === 'goto') S.visited.add(vpKey(f.room, f.i));
+      else if (f.kind === 'inspect') S.skip.add(f.obj);
+      S.path = []; S.mode = 'stuck'; S.retryAt = S.frame + 10; S.focus = null;
     }
 
     function sense(){
@@ -768,14 +922,43 @@
         if (vis && gp < o.minGap) o.minGap = gp;     // classification only improves with line of sight
       }
     }
+    function narrateResolutions(){
+      for (const o of objs){
+        if (!o.seen) continue;
+        const len = labelSet(o).length;
+        if (len === 1 && o.lastLen !== 1){
+          const focal = S.focus && S.focus.obj === o;
+          if (o.c === T) say(`There's the ${TL}! Heading over to it.`, 'found');
+          else if (focal && task.anchors.includes(o.c)) say(`It's ${art(o.name)}. The ${TL} should be close by.`);
+          else if (o.c === 'person' && o.lastLen > 1) say(`That's a person. I'll give them space.`);
+          else if (focal || S.spoken.has('blk:' + o.id)) say(`Just ${art(o.name)}.`);
+        }
+        if (len > 1 && o.lastLen === 0 && o.c === 'person' && !S.spoken.has('person:' + o.id)){
+          say(`Someone might be there: ${orList(labelSet(o))}. Keeping my distance.`);
+          S.spoken.add('person:' + o.id);
+        }
+        o.lastLen = len;
+      }
+    }
     const signature = () => objs.map(o => o.seen ? labelSet(o).length : 0).join('');
 
     function step(){
       if (S.done) return;
       S.frame++;
+      if (S.touch){                          // reaching out to touch the target
+        S.touch.t++;
+        if (S.touch.t === 20) say(`Found the ${TL}!`, 'found');
+        if (S.touch.t >= 110){ S.done = true; S.mode = 'done'; }
+        S.trail.push({x:S.robot.x, y:S.robot.y, m:'exploit'});
+        return;
+      }
       sense();
+      narrateResolutions();
       const sig = signature();
-      if (sig !== S.sig || (!S.path.length && S.frame >= S.retryAt)){ S.sig = sig; replan(); }
+      const f = decide();
+      const changed = !sameFocus(f, S.focus);
+      if (changed){ if (f) announce(f, S.focus); S.focus = f; }
+      if (changed || sig !== S.sig || (!S.path.length && S.frame >= S.retryAt)){ S.sig = sig; plan(); }
 
       let move = SPEED;
       while (move > 0 && S.path.length){
@@ -787,12 +970,15 @@
       S.trail.push({x:S.robot.x, y:S.robot.y, m:S.mode});
       S.sigma = Math.min(8.5, S.sigma + 0.003);     // bounded state covariance growth
 
-      const g = S.goals[S.gi];
-      if (Math.hypot(S.robot.x - g.x, S.robot.y - g.y) < CELL){
-        S.gi++; S.path = [];
-        if (S.gi >= S.goals.length){ S.done = true; S.mode = 'done'; }
-        else S.sig = '';
+      const fo = S.focus;
+      if (fo && fo.kind === 'goto' && Math.hypot(S.robot.x - fo.p.x, S.robot.y - fo.p.y) < CELL * 1.5){
+        S.visited.add(vpKey(fo.room, fo.i)); S.path = [];
       }
+      if (fo && fo.kind === 'reach' && rectGap(S.robot.x, S.robot.y, fo.obj) <= TOUCH_DIST){
+        S.heading = Math.atan2(fo.obj.y + fo.obj.h / 2 - S.robot.y, fo.obj.x + fo.obj.w / 2 - S.robot.x);
+        S.touch = {obj:fo.obj, t:0}; S.found = fo.obj; S.mode = 'touch'; S.path = [];
+      }
+      if (!S.path.length && fo && fo.kind === 'inspect' && S.frame >= S.retryAt) S.retryAt = S.frame;
     }
 
     // invariants used by the offline test harness
@@ -800,7 +986,8 @@
       const v = [], R = S.robot;
       for (const o of objs){
         const gp = rectGap(R.x, R.y, o);
-        if (o.seen && gp < padOf(o) + ROBOT_R - 1e-6) v.push(`region:${o.name}:${(gp - padOf(o) - ROBOT_R).toFixed(2)}`);
+        if (o.c === T){ if (gp < TOUCH_REQ - R_M - 1e-6) v.push(`touch:${o.name}`); continue; }
+        if (o.seen && gp < padOf(o, T) + ROBOT_R - 1e-6) v.push(`region:${o.name}:${(gp - padOf(o, T) - ROBOT_R).toFixed(2)}`);
         if (gp < o.truePad + ROBOT_R - 1e-6) v.push(`true:${o.name}`);
       }
       if (wallDist(R.x, R.y) < WALL_D + ROBOT_R - 1e-6) v.push('wall');
@@ -810,16 +997,12 @@
   }
 /*SIM-END*/
 
-  /* ================= rendering ================= */
+  /* =====================================================================
+     3D rendering — a small self-contained WebGL engine (no libraries)
+     ===================================================================== */
   const canvas = document.getElementById('scene');
-  const ctx = canvas.getContext('2d');
-  const off = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
-  const maskC  = off(), maskX  = maskC.getContext('2d');
-  const revC   = off(), revX   = revC.getContext('2d');
-
-  const GREEN = '34,139,90', RED = '205,64,58';
-  const FONT = '"Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif';
-
+  const overlay = document.getElementById('overlay');
+  const bubbleEl = document.getElementById('bubble');
   const sel = document.getElementById('task');
   const phiEl = document.getElementById('phi');
   const qaEl = document.getElementById('qa');
@@ -827,12 +1010,782 @@
   const keyEl = document.getElementById('key');
   const statsEl = document.getElementById('stats');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const FONT = '"Source Serif 4", "Iowan Old Style", Palatino, Georgia, serif';
+  const M = 1 / PX_PER_M;                                   // plan px -> metres
 
   let sim = null, phase = 'translating', doneAt = 0, acc = 0, last = performance.now();
   let fTimers = [], keySig = '';
 
-  const tokHTML = t => t.startsWith('π:') ? `<i>π</i><sub>${t.slice(2)}</sub>` : t;
+  const gl = canvas.getContext('webgl', {antialias:true, alpha:false});
+  if (!gl){ overlay.insertAdjacentHTML('beforeend', '<div class="nogl">This demo needs WebGL.</div>'); }
 
+  /* ---------------- math ---------------- */
+  const m4 = {
+    id(){ const m = new Float32Array(16); m[0] = m[5] = m[10] = m[15] = 1; return m; },
+    mul(a, b){ const o = new Float32Array(16);
+      for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++){ let s = 0; for (let k = 0; k < 4; k++) s += a[k*4 + r] * b[c*4 + k]; o[c*4 + r] = s; }
+      return o; },
+    T(x, y, z){ const m = m4.id(); m[12] = x; m[13] = y; m[14] = z; return m; },
+    S(x, y, z){ const m = m4.id(); m[0] = x; m[5] = y; m[10] = z; return m; },
+    Ry(a){ const m = m4.id(), c = Math.cos(a), s = Math.sin(a); m[0] = c; m[2] = -s; m[8] = s; m[10] = c; return m; },
+    Rz(a){ const m = m4.id(), c = Math.cos(a), s = Math.sin(a); m[0] = c; m[1] = s; m[4] = -s; m[5] = c; return m; },
+    Rx(a){ const m = m4.id(), c = Math.cos(a), s = Math.sin(a); m[5] = c; m[6] = s; m[9] = -s; m[10] = c; return m; },
+    persp(fovy, asp, n, f){ const m = new Float32Array(16), t = 1 / Math.tan(fovy / 2);
+      m[0] = t / asp; m[5] = t; m[10] = (f + n) / (n - f); m[11] = -1; m[14] = 2 * f * n / (n - f); return m; },
+    ortho(l, r, b, t, n, f){ const m = m4.id();
+      m[0] = 2 / (r - l); m[5] = 2 / (t - b); m[10] = -2 / (f - n); m[12] = -(r + l) / (r - l); m[13] = -(t + b) / (t - b); m[14] = -(f + n) / (f - n); return m; },
+    look(e, t, u){
+      let zx = e[0]-t[0], zy = e[1]-t[1], zz = e[2]-t[2]; let l = Math.hypot(zx, zy, zz); zx /= l; zy /= l; zz /= l;
+      let xx = u[1]*zz - u[2]*zy, xy = u[2]*zx - u[0]*zz, xz = u[0]*zy - u[1]*zx; l = Math.hypot(xx, xy, xz); xx /= l; xy /= l; xz /= l;
+      const yx = zy*xz - zz*xy, yy = zz*xx - zx*xz, yz = zx*xy - zy*xx;
+      const m = m4.id();
+      m[0] = xx; m[4] = xy; m[8] = xz; m[1] = yx; m[5] = yy; m[9] = yz; m[2] = zx; m[6] = zy; m[10] = zz;
+      m[12] = -(xx*e[0] + xy*e[1] + xz*e[2]); m[13] = -(yx*e[0] + yy*e[1] + yz*e[2]); m[14] = -(zx*e[0] + zy*e[1] + zz*e[2]);
+      return m; },
+    n3(m){ return new Float32Array([m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]]); },
+    xf(m, x, y, z){ return [m[0]*x + m[4]*y + m[8]*z + m[12], m[1]*x + m[5]*y + m[9]*z + m[13], m[2]*x + m[6]*y + m[10]*z + m[14], m[3]*x + m[7]*y + m[11]*z + m[15]]; }
+  };
+  const chain = (...ms) => ms.reduce((a, b) => m4.mul(a, b));
+  const hex = h => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
+
+  /* ---------------- geometry builder ---------------- */
+  class Geo {
+    constructor(){ this.p = []; this.n = []; this.c = []; this.i = []; this.o = [0, 0, 0]; this.ry = 0; }
+    at(x, y, z, ry = 0){ this.o = [x, y, z]; this.ry = ry; return this; }
+    _v(x, y, z, nx, ny, nz, c){
+      const cs = Math.cos(this.ry), sn = Math.sin(this.ry);
+      this.p.push(x*cs + z*sn + this.o[0], y + this.o[1], -x*sn + z*cs + this.o[2]);
+      this.n.push(nx*cs + nz*sn, ny, -nx*sn + nz*cs);
+      this.c.push(c[0], c[1], c[2]);
+      return this.p.length / 3 - 1;
+    }
+    quad(a, b, c, d){ this.i.push(a, b, c, a, c, d); }
+    box(x0, y0, z0, x1, y1, z1, c){
+      const F = [[[1,0,0],[[x1,y0,z0],[x1,y1,z0],[x1,y1,z1],[x1,y0,z1]]], [[-1,0,0],[[x0,y0,z1],[x0,y1,z1],[x0,y1,z0],[x0,y0,z0]]],
+                 [[0,1,0],[[x0,y1,z0],[x0,y1,z1],[x1,y1,z1],[x1,y1,z0]]], [[0,-1,0],[[x0,y0,z1],[x0,y0,z0],[x1,y0,z0],[x1,y0,z1]]],
+                 [[0,0,1],[[x1,y0,z1],[x1,y1,z1],[x0,y1,z1],[x0,y0,z1]]], [[0,0,-1],[[x0,y0,z0],[x0,y1,z0],[x1,y1,z0],[x1,y0,z0]]]];
+      for (const [n, q] of F){ const k = q.map(v => this._v(v[0], v[1], v[2], n[0], n[1], n[2], c)); this.quad(k[0], k[1], k[2], k[3]); }
+      return this;
+    }
+    cyl(cx, cz, y0, y1, r0, r1, c, seg = 18, caps = true){
+      const base = this.p.length / 3, slope = (r0 - r1) / (y1 - y0);
+      for (let k = 0; k <= seg; k++){
+        const a = k / seg * Math.PI * 2, x = Math.cos(a), z = Math.sin(a), nl = Math.hypot(1, slope);
+        this._v(cx + x*r0, y0, cz + z*r0, x/nl, slope/nl, z/nl, c);
+        this._v(cx + x*r1, y1, cz + z*r1, x/nl, slope/nl, z/nl, c);
+      }
+      for (let k = 0; k < seg; k++){ const a = base + k*2; this.i.push(a, a+1, a+3, a, a+3, a+2); }
+      if (caps) for (const [y, r, ny] of [[y1, r1, 1], [y0, r0, -1]]){
+        const ctr = this._v(cx, y, cz, 0, ny, 0, c), s0 = this.p.length / 3;
+        for (let k = 0; k <= seg; k++){ const a = k / seg * Math.PI * 2; this._v(cx + Math.cos(a)*r, y, cz + Math.sin(a)*r, 0, ny, 0, c); }
+        for (let k = 0; k < seg; k++) ny > 0 ? this.i.push(ctr, s0 + k + 1, s0 + k) : this.i.push(ctr, s0 + k, s0 + k + 1);
+      }
+      return this;
+    }
+    tube(a, b, r, c, seg = 10, r2 = r){
+      const d = [b[0]-a[0], b[1]-a[1], b[2]-a[2]], L = Math.hypot(...d); d[0] /= L; d[1] /= L; d[2] /= L;
+      let u = Math.abs(d[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+      let p = [d[1]*u[2] - d[2]*u[1], d[2]*u[0] - d[0]*u[2], d[0]*u[1] - d[1]*u[0]]; let l = Math.hypot(...p); p = p.map(v => v / l);
+      const q = [d[1]*p[2] - d[2]*p[1], d[2]*p[0] - d[0]*p[2], d[0]*p[1] - d[1]*p[0]];
+      const base = this.p.length / 3;
+      for (let k = 0; k <= seg; k++){
+        const t = k / seg * Math.PI * 2, cs = Math.cos(t), sn = Math.sin(t);
+        const n = [p[0]*cs + q[0]*sn, p[1]*cs + q[1]*sn, p[2]*cs + q[2]*sn];
+        this._v(a[0] + n[0]*r, a[1] + n[1]*r, a[2] + n[2]*r, n[0], n[1], n[2], c);
+        this._v(b[0] + n[0]*r2, b[1] + n[1]*r2, b[2] + n[2]*r2, n[0], n[1], n[2], c);
+      }
+      for (let k = 0; k < seg; k++){ const s = base + k*2; this.i.push(s, s+3, s+1, s, s+2, s+3); }
+      return this;
+    }
+    sph(cx, cy, cz, rx, ry, rz, c, seg = 16, rings = 10){
+      const base = this.p.length / 3;
+      for (let j = 0; j <= rings; j++){
+        const v = j / rings * Math.PI, sv = Math.sin(v), cv = Math.cos(v);
+        for (let k = 0; k <= seg; k++){
+          const u = k / seg * Math.PI * 2, x = Math.cos(u)*sv, z = Math.sin(u)*sv, y = cv;
+          const nl = Math.hypot(x / rx, y / ry, z / rz) || 1;
+          this._v(cx + x*rx, cy + y*ry, cz + z*rz, x/rx/nl, y/ry/nl, z/rz/nl, c);
+        }
+      }
+      for (let j = 0; j < rings; j++) for (let k = 0; k < seg; k++){
+        const a = base + j*(seg + 1) + k, b = a + seg + 1; this.i.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+      return this;
+    }
+    torus(cx, cy, cz, R, r, c, seg = 26, sr = 8){
+      const base = this.p.length / 3;
+      for (let j = 0; j <= seg; j++){
+        const u = j / seg * Math.PI * 2;
+        for (let k = 0; k <= sr; k++){
+          const v = k / sr * Math.PI * 2, rr = R + r*Math.cos(v);
+          this._v(cx + rr*Math.cos(u), cy + rr*Math.sin(u), cz + r*Math.sin(v), Math.cos(v)*Math.cos(u), Math.cos(v)*Math.sin(u), Math.sin(v), c);
+        }
+      }
+      for (let j = 0; j < seg; j++) for (let k = 0; k < sr; k++){
+        const a = base + j*(sr + 1) + k, b = a + sr + 1; this.i.push(a, b, a + 1, b, b + 1, a + 1);
+      }
+      return this;
+    }
+  }
+
+  /* ---------------- GL plumbing ---------------- */
+  function shader(vs, fs){
+    const mk = (t, src) => { const s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    const p = gl.createProgram(); gl.attachShader(p, mk(gl.VERTEX_SHADER, vs)); gl.attachShader(p, mk(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+    const u = {}, a = {};
+    for (let i = 0; i < gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS); i++){ const n = gl.getActiveUniform(p, i).name; u[n] = gl.getUniformLocation(p, n); }
+    for (let i = 0; i < gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES); i++){ const n = gl.getActiveAttrib(p, i).name; a[n] = gl.getAttribLocation(p, n); }
+    return {p, u, a};
+  }
+  function buf(data, target, usage){ target = target || gl.ARRAY_BUFFER; const b = gl.createBuffer(); gl.bindBuffer(target, b); gl.bufferData(target, data, usage || gl.STATIC_DRAW); return b; }
+  function mesh(g){
+    return {pos:buf(new Float32Array(g.p)), nrm:buf(new Float32Array(g.n)), col:buf(new Float32Array(g.c)),
+            idx:buf(new Uint16Array(g.i), gl.ELEMENT_ARRAY_BUFFER), n:g.i.length};
+  }
+  let enabledAttrs = new Set();
+  function bindAttr(prog, name, b, size){
+    const loc = prog.a[name]; if (loc === undefined || loc < 0) return;
+    gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, 0, 0);
+  }
+  function useProg(prog){
+    gl.useProgram(prog.p);
+    for (let i = 0; i < 8; i++) gl.disableVertexAttribArray(i);
+  }
+
+  let SH_DEPTH = null, SH_LIT = null, SH_FLOOR = null, SH_FLAT = null, SH_BALL = null;
+  function compileShaders(){
+    SH_DEPTH = shader(`
+      attribute vec3 aP; uniform mat4 uM, uL;
+      void main(){ gl_Position = uL * uM * vec4(aP, 1.0); }`, `
+      precision highp float;
+      vec4 pack(float d){ vec4 e = fract(vec4(1.0, 255.0, 65025.0, 16581375.0) * d); return e - e.yzww * vec4(1.0/255.0, 1.0/255.0, 1.0/255.0, 0.0); }
+      void main(){ gl_FragColor = pack(gl_FragCoord.z); }`);
+    const LIGHT_FN = `
+      uniform sampler2D uSh; uniform float uTx; uniform vec3 uLd; uniform vec3 uEye;
+      float unpack(vec4 c){ return dot(c, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0)); }
+      float shadow(vec4 s){
+        vec3 p = s.xyz / s.w * 0.5 + 0.5;
+        if (p.x < 0.0 || p.x > 1.0 || p.y < 0.0 || p.y > 1.0 || p.z > 1.0) return 1.0;
+        float v = 0.0;
+        for (int i = -1; i <= 1; i++) for (int j = -1; j <= 1; j++)
+          v += (p.z - 0.0016 > unpack(texture2D(uSh, p.xy + vec2(float(i), float(j)) * uTx))) ? 0.0 : 1.0;
+        return v / 9.0;
+      }
+      vec3 shade(vec3 base, vec3 n, vec3 w, vec4 s){
+        float ndl = max(dot(n, uLd), 0.0);
+        vec3 amb = mix(vec3(0.36, 0.32, 0.29), vec3(0.62, 0.63, 0.67), n.y * 0.5 + 0.5);
+        vec3 key = vec3(1.0, 0.94, 0.86) * 0.78 * ndl * shadow(s);
+        vec3 V = normalize(uEye - w);
+        float rim = pow(1.0 - max(dot(n, V), 0.0), 3.0);
+        return base * (amb + key) + vec3(0.82, 0.23, 0.0) * rim * 0.08;
+      }`;
+    SH_LIT = shader(`
+      attribute vec3 aP; attribute vec3 aN; attribute vec3 aC;
+      uniform mat4 uM, uVP, uL; uniform mat3 uN;
+      varying vec3 vN, vC, vW; varying vec4 vS;
+      void main(){ vec4 w = uM * vec4(aP, 1.0); vW = w.xyz; vN = uN * aN; vC = aC; vS = uL * w; gl_Position = uVP * w; }`, `
+      precision highp float;
+      varying vec3 vN, vC, vW; varying vec4 vS;
+      uniform float uGrey;
+      ${LIGHT_FN}
+      void main(){
+        vec3 n = normalize(vN);
+        if (!gl_FrontFacing) n = -n;
+        float g = dot(vC, vec3(0.3, 0.59, 0.11));
+        vec3 base = mix(vC, vec3(0.08 + g * 0.26), uGrey);
+        gl_FragColor = vec4(shade(base, n, vW, vS), 1.0);
+      }`);
+    SH_FLOOR = shader(`
+      attribute vec3 aP; uniform mat4 uVP, uL; uniform vec4 uRect;
+      varying vec2 vUV, vMU; varying vec3 vW; varying vec4 vS;
+      void main(){ vW = aP; vUV = (aP.xz - uRect.xy) / uRect.zw; vMU = aP.xz * ${PX_PER_M.toFixed(1)} / vec2(${W.toFixed(1)}, ${H.toFixed(1)});
+        vS = uL * vec4(aP, 1.0); gl_Position = uVP * vec4(aP, 1.0); }`, `
+      precision highp float;
+      varying vec2 vUV, vMU; varying vec3 vW; varying vec4 vS;
+      uniform sampler2D uTex, uMask;
+      ${LIGHT_FN}
+      void main(){
+        vec3 c = texture2D(uTex, vUV).rgb;
+        float m = texture2D(uMask, vMU).r;
+        float g = dot(c, vec3(0.3, 0.59, 0.11));
+        vec3 base = mix(vec3(0.05 + g * 0.2), c, m);
+        gl_FragColor = vec4(shade(base, vec3(0.0, 1.0, 0.0), vW, vS), 1.0);
+      }`);
+    SH_FLAT = shader(`
+      attribute vec3 aP; attribute vec4 aC; uniform mat4 uM, uVP; varying vec4 vC;
+      void main(){ vC = aC; gl_Position = uVP * uM * vec4(aP, 1.0); }`, `
+      precision highp float; varying vec4 vC; uniform float uA;
+      void main(){ gl_FragColor = vec4(vC.rgb, vC.a * uA); }`);
+    SH_BALL = shader(`
+      attribute vec3 aP; attribute vec3 aN; uniform mat4 uVP; varying vec3 vN, vW;
+      void main(){ vN = aN; vW = aP; gl_Position = uVP * vec4(aP, 1.0); }`, `
+      precision highp float; varying vec3 vN, vW; uniform vec3 uEye, uCol; uniform float uA;
+      void main(){
+        float f = 1.0 - abs(dot(normalize(vN), normalize(uEye - vW)));
+        gl_FragColor = vec4(uCol * (0.75 + 0.5 * f), uA * (0.2 + 0.8 * pow(f, 1.5)));
+      }`);
+  }
+
+  /* ---------------- static scene ---------------- */
+  const OBJ_H = {sofa:.86, bed:.95, tv:1.15, lamp:1.62, plant:1.05, fridge:1.85, stove:.95, sink:1.12, table:.76, desk:1.12, chair:.92,
+    shelf:1.85, wardrobe:2.0, tub:.78, car:1.42, toolbox:.32, coatrack:1.75, ottoman:.44, cabinet:.9, umbrella:.95, printer:.88,
+    box:.42, basket:.47, heater:.62, bike:1.0, crate:.46, bench:.46, person:1.8, bin:.6, stool:.6};
+
+  function buildFurniture(o, idx){
+    const g = new Geo(), x0 = o.x * M, z0 = o.y * M, x1 = (o.x + o.w) * M, z1 = (o.y + o.h) * M;
+    const w = x1 - x0, d = z1 - z0, cx = (x0 + x1) / 2, cz = (z0 + z1) / 2;
+    const WOOD = hex('#9a6a3e'), DWOOD = hex('#6e4528'), LWOOD = hex('#b88a58'), WHITE = hex('#eeeeea'), DARK = hex('#26262a'), STEEL = hex('#c9ccd0');
+    const legs = (h, r, inset, col) => { for (const [lx, lz] of [[x0 + inset, z0 + inset], [x1 - inset, z0 + inset], [x0 + inset, z1 - inset], [x1 - inset, z1 - inset]]) g.cyl(lx, lz, 0, h, r, r, col, 8, false); };
+    switch (o.c){
+      case 'sofa': {
+        const fab = hex('#7d9686'), fab2 = hex('#8fa898');
+        g.box(x0, 0.06, z0, x1, 0.42, z1, fab);
+        g.box(x0, 0.42, z0, x1, 0.86, z0 + 0.2, fab);
+        g.box(x0, 0.42, z0, x0 + 0.16, 0.64, z1, fab); g.box(x1 - 0.16, 0.42, z0, x1, 0.64, z1, fab);
+        for (let k = 0; k < 3; k++){ const a = x0 + 0.17 + k * (w - 0.34) / 3; g.box(a + 0.01, 0.42, z0 + 0.2, a + (w - 0.34) / 3 - 0.01, 0.52, z1 - 0.02, fab2); }
+        legs(0.06, 0.03, 0.06, DWOOD); break; }
+      case 'bed': {
+        g.box(x0, 0.12, z0, x1, 0.36, z1, DWOOD); legs(0.12, 0.04, 0.06, DWOOD);
+        g.box(x0, 0.12, z0 - 0.02, x1, 0.95, z0 + 0.06, DWOOD);
+        g.box(x0 + 0.05, 0.36, z0 + 0.06, x1 - 0.05, 0.56, z1 - 0.04, hex('#f3f0e8'));
+        g.box(x0 + 0.04, 0.5, z0 + 0.62, x1 - 0.04, 0.6, z1 - 0.03, hex('#7f9bbd'));
+        for (let k = 0; k < 2; k++){ const a = x0 + 0.12 + k * (w - 0.24) / 2; g.box(a + 0.03, 0.56, z0 + 0.12, a + (w - 0.24) / 2 - 0.03, 0.68, z0 + 0.45, hex('#ffffff')); }
+        break; }
+      case 'tv':
+        g.box(x0, 0, z0, x1, 0.45, z1, DWOOD);
+        g.box(cx - 0.03, 0.45, z0 + 0.05, cx + 0.03, 0.5, z1 - 0.05, DARK);
+        g.box(cx - 0.035, 0.5, z0 + 0.02, cx + 0.035, 1.15, z1 - 0.02, hex('#141418')); break;
+      case 'lamp':
+        g.cyl(cx, cz, 0, 0.03, 0.16, 0.16, DARK, 16); g.cyl(cx, cz, 0.03, 1.32, 0.014, 0.014, DARK, 8, false);
+        g.cyl(cx, cz, 1.3, 1.62, 0.2, 0.13, hex('#f1dfae'), 18); break;
+      case 'plant':
+        g.cyl(cx, cz, 0, 0.36, 0.16, 0.2, hex('#b86744'), 16);
+        for (let k = 0; k < 7; k++){ const a = k * 2 * Math.PI / 7; g.sph(cx + Math.cos(a) * 0.14, 0.62 + (k % 3) * 0.1, cz + Math.sin(a) * 0.14, 0.17, 0.2, 0.17, hex(k % 2 ? '#4f8a4b' : '#3f7a43'), 10, 7); }
+        g.sph(cx, 0.9, cz, 0.16, 0.18, 0.16, hex('#5b9a55'), 10, 7); break;
+      case 'fridge':
+        g.box(x0, 0, z0, x1, 1.85, z1, STEEL);
+        g.box(x0 - 0.002, 1.22, z1, x1 + 0.002, 1.24, z1 + 0.005, hex('#9aa0a6'));
+        g.box(x1 - 0.12, 1.32, z1, x1 - 0.1, 1.7, z1 + 0.05, hex('#6f757b')); g.box(x1 - 0.12, 0.5, z1, x1 - 0.1, 1.12, z1 + 0.05, hex('#6f757b')); break;
+      case 'stove':
+        g.box(x0, 0, z0, x1, 0.9, z1, hex('#d2d4d6')); g.box(x0, 0.9, z0, x1, 0.93, z1, hex('#1d1d20'));
+        for (const i of [0.28, 0.72]) for (const j of [0.3, 0.72]) g.cyl(x0 + w * i, z0 + d * j, 0.93, 0.945, 0.09, 0.09, hex('#3a3a3e'), 14);
+        g.box(x0 + 0.08, 0.15, z1, x1 - 0.08, 0.7, z1 + 0.01, hex('#2a2a2e')); break;
+      case 'sink': {
+        g.box(x0, 0, z0, x1, 0.86, z1, LWOOD); g.box(x0 - 0.01, 0.86, z0 - 0.01, x1 + 0.01, 0.9, z1 + 0.01, hex('#e8e6e0'));
+        g.box(cx - w * 0.3, 0.88, z0 + d * 0.2, cx + w * 0.3, 0.905, z1 - d * 0.2, hex('#b8bcc0'));
+        g.tube([cx, 0.9, z0 + 0.06], [cx, 1.12, z0 + 0.06], 0.018, STEEL); g.tube([cx, 1.12, z0 + 0.06], [cx, 1.1, z0 + 0.2], 0.016, STEEL); break; }
+      case 'table':
+        g.box(x0, 0.72, z0, x1, 0.76, z1, hex('#a8763f')); legs(0.72, 0.03, 0.06, hex('#7a512b')); break;
+      case 'desk':
+        g.box(x0, 0.72, z0, x1, 0.76, z1, hex('#83552f')); legs(0.72, 0.03, 0.05, hex('#5c3a20'));
+        g.box(cx - 0.3, 0.78, z0 + 0.08, cx + 0.3, 1.12, z0 + 0.12, hex('#18181b')); g.box(cx - 0.03, 0.76, z0 + 0.1, cx + 0.03, 0.8, z0 + 0.2, DARK);
+        g.box(cx - 0.22, 0.76, z0 + 0.35, cx + 0.22, 0.78, z0 + 0.5, hex('#3a3a3e')); break;
+      case 'chair':
+        g.box(x0 + 0.04, 0.42, z0 + 0.04, x1 - 0.04, 0.47, z1 - 0.04, WOOD); legs(0.42, 0.022, 0.07, DWOOD);
+        g.box(x0 + 0.04, 0.47, z0 + 0.04, x1 - 0.04, 0.92, z0 + 0.09, WOOD); break;
+      case 'stool': g.cyl(cx, cz, 0.55, 0.6, w / 2, w / 2, WOOD, 16); legs(0.55, 0.018, 0.08, DWOOD); break;
+      case 'shelf': {
+        g.box(x0, 0, z0, x1, 1.85, z0 + 0.03, DWOOD); g.box(x1 - 0.03, 0, z0, x1, 1.85, z1, DWOOD); g.box(x0, 0, z1 - 0.03, x1, 1.85, z1, DWOOD);
+        const books = ['#a33b2f', '#2f5a8a', '#d6a43a', '#3f6e4a', '#6b4a8a'];
+        for (let k = 0; k < 5; k++){ const y = k * 0.37; g.box(x0, y, z0, x1, y + 0.03, z1, DWOOD);
+          for (let b = 0; b < 6; b++){ const zz = z0 + 0.06 + b * (d - 0.12) / 6; g.box(x0 + 0.05, y + 0.03, zz, x1 - 0.05, y + 0.25 + (b % 3) * 0.03, zz + (d - 0.12) / 6 - 0.02, hex(books[(b + k) % 5])); } }
+        break; }
+      case 'wardrobe':
+        g.box(x0, 0, z0, x1, 2.0, z1, DWOOD); g.box(x0 - 0.005, 0.05, cz - 0.004, x1 + 0.005, 1.95, cz + 0.004, hex('#4b2d18'));
+        g.box(x0 - 0.03, 0.9, cz - 0.12, x0, 1.1, cz - 0.1, STEEL); g.box(x0 - 0.03, 0.9, cz + 0.1, x0, 1.1, cz + 0.12, STEEL); break;
+      case 'cabinet':
+        g.box(x0, 0, z0, x1, 0.9, z1, WOOD); g.box(cx - 0.004, 0.05, z1, cx + 0.004, 0.85, z1 + 0.005, DWOOD);
+        g.box(cx - 0.1, 0.6, z1, cx - 0.04, 0.63, z1 + 0.03, STEEL); g.box(cx + 0.04, 0.6, z1, cx + 0.1, 0.63, z1 + 0.03, STEEL); break;
+      case 'tub':
+        g.box(x0, 0, z0, x1, 0.58, z1, WHITE); g.box(x0 + 0.08, 0.4, z0 + 0.08, x1 - 0.08, 0.585, z1 - 0.08, hex('#bfe0ea'));
+        g.tube([x1 - 0.12, 0.58, cz], [x1 - 0.12, 0.78, cz], 0.02, STEEL); break;
+      case 'car': {
+        const body = hex('#3b67a3'), dark = hex('#24406a'), glass = hex('#8fb3cf'), TIRE = hex('#161618');
+        for (const wx of [x0 + 0.55, x1 - 0.55]) for (const wz of [z0 + 0.04, z1 - 0.04]) {
+          g.at(wx, 0.32, wz); g.tube([0, 0, -0.1], [0, 0, 0.1], 0.32, TIRE, 20);
+          for (const e of [-0.1, 0.1]) g.sph(0, 0, e, 0.32, 0.32, 0.012, hex('#2a2a2c'), 20, 6);
+          for (const e of [-0.105, 0.105]) g.sph(0, 0, e, 0.17, 0.17, 0.01, hex('#b9bdc2'), 16, 4);
+          g.at(0, 0, 0); }
+        g.box(x0 + 0.05, 0.2, z0 + 0.1, x1 - 0.02, 0.62, z1 - 0.1, body);                       // lower body
+        g.box(x0, 0.26, z0 + 0.12, x0 + 0.08, 0.56, z1 - 0.12, dark);                            // rear bumper
+        g.box(x1 - 0.06, 0.22, z0 + 0.12, x1 + 0.02, 0.5, z1 - 0.12, dark);                      // front bumper
+        g.box(x0 + 0.1, 0.62, z0 + 0.14, x1 - w * 0.22, 0.78, z1 - 0.14, body);                  // shoulder line
+        g.box(x0 + w * 0.24, 0.78, z0 + 0.2, x1 - w * 0.36, 1.2, z1 - 0.2, glass);              // greenhouse
+        g.box(x0 + w * 0.27, 1.2, z0 + 0.22, x1 - w * 0.39, 1.26, z1 - 0.22, body);              // roof
+        g.box(x1 - w * 0.36, 0.78, z0 + 0.24, x1 - w * 0.33, 1.12, z1 - 0.24, glass);           // windscreen rake
+        g.box(x1 - 0.03, 0.42, z0 + 0.16, x1 + 0.025, 0.54, z0 + 0.42, hex('#fff3c8')); g.box(x1 - 0.03, 0.42, z1 - 0.42, x1 + 0.025, 0.54, z1 - 0.16, hex('#fff3c8'));
+        g.box(x0 - 0.02, 0.46, z0 + 0.16, x0 + 0.02, 0.56, z0 + 0.4, hex('#c0302a')); g.box(x0 - 0.02, 0.46, z1 - 0.4, x0 + 0.02, 0.56, z1 - 0.16, hex('#c0302a'));
+        g.box(x1 - w * 0.4, 0.86, z0 + 0.05, x1 - w * 0.37, 0.92, z0 + 0.14, dark); g.box(x1 - w * 0.4, 0.86, z1 - 0.14, x1 - w * 0.37, 0.92, z1 - 0.05, dark);
+        break; }
+      case 'bike': {
+        const r = 0.33, wy = r + 0.01, rx = x0 + r + 0.03, fx = x1 - r - 0.03, FR = hex('#c23a2c');
+        g.torus(rx, wy, cz, r, 0.025, hex('#1c1c1e')); g.torus(fx, wy, cz, r, 0.025, hex('#1c1c1e'));
+        for (const hx of [rx, fx]) for (let k = 0; k < 6; k++){ const a = k * Math.PI / 6;
+          g.tube([hx - Math.cos(a) * r * 0.92, wy - Math.sin(a) * r * 0.92, cz], [hx + Math.cos(a) * r * 0.92, wy + Math.sin(a) * r * 0.92, cz], 0.004, STEEL, 4); }
+        const bb = [rx + 0.46 * (fx - rx), wy - 0.02, cz], st = [bb[0] - 0.12, wy + 0.5, cz], ht = [fx - 0.18, wy + 0.46, cz], hb = [fx - 0.14, wy + 0.3, cz];
+        for (const [a, b] of [[bb, st], [st, ht], [bb, hb], [[rx, wy, cz], bb], [[rx, wy, cz], st], [hb, ht]]) g.tube(a, b, 0.018, FR, 8);
+        g.tube(hb, [fx, wy, cz], 0.014, hex('#8a2a20'), 8);
+        g.tube(st, [st[0] - 0.02, st[1] + 0.1, cz], 0.012, DARK, 6); g.box(st[0] - 0.12, st[1] + 0.1, cz - 0.05, st[0] + 0.06, st[1] + 0.14, cz + 0.05, DARK);
+        g.tube(ht, [ht[0] + 0.02, ht[1] + 0.12, cz], 0.014, DARK, 6); g.tube([ht[0] + 0.02, ht[1] + 0.12, cz - 0.24], [ht[0] + 0.02, ht[1] + 0.12, cz + 0.24], 0.013, DARK, 6);
+        break; }
+      case 'toolbox':
+        g.box(x0, 0, z0, x1, 0.28, z1, hex('#c0392b')); g.tube([cx - 0.15, 0.3, cz], [cx + 0.15, 0.3, cz], 0.015, DARK, 6);
+        g.box(cx - 0.17, 0.28, cz - 0.01, cx - 0.15, 0.32, cz + 0.01, DARK); g.box(cx + 0.15, 0.28, cz - 0.01, cx + 0.17, 0.32, cz + 0.01, DARK); break;
+      case 'coatrack':
+        g.cyl(cx, cz, 0, 0.04, 0.2, 0.2, DWOOD, 16); g.cyl(cx, cz, 0.04, 1.75, 0.022, 0.022, DWOOD, 8);
+        for (let k = 0; k < 4; k++){ const a = k * Math.PI / 2 + 0.4; g.tube([cx, 1.6, cz], [cx + Math.cos(a) * 0.14, 1.72, cz + Math.sin(a) * 0.14], 0.012, DWOOD, 5); }
+        g.box(cx - 0.12, 0.85, cz + 0.03, cx + 0.12, 1.58, cz + 0.12, hex('#6b4a33')); break;
+      case 'ottoman': g.cyl(cx, cz, 0.06, 0.44, Math.min(w, d) / 2, Math.min(w, d) / 2 * 0.96, hex('#d4a24c'), 20); legs(0.06, 0.02, 0.08, DWOOD); break;
+      case 'umbrella':
+        g.cyl(cx, cz, 0, 0.55, 0.15, 0.15, hex('#3c4048'), 16);
+        for (const [ox, oz, col] of [[0.04, 0.03, '#8c3b46'], [-0.05, 0.0, '#2f5a8a'], [0.0, -0.05, '#222222']]) g.tube([cx + ox, 0.1, cz + oz], [cx + ox * 1.6, 0.95, cz + oz * 1.6], 0.025, hex(col), 6);
+        break;
+      case 'printer':
+        g.box(x0, 0, z0, x1, 0.55, z1, LWOOD); g.box(x0 + 0.03, 0.55, z0 + 0.02, x1 - 0.03, 0.82, z1 - 0.02, hex('#e2e2df'));
+        g.box(x0 + 0.1, 0.82, z0 + 0.06, x1 - 0.1, 0.86, z0 + 0.2, hex('#f8f8f4')); g.box(x0 + 0.08, 0.62, z1 - 0.02, x1 - 0.08, 0.66, z1 + 0.04, hex('#3a3a3e')); break;
+      case 'box': g.box(x0, 0, z0, x1, 0.42, z1, hex('#c8a270')); g.box(cx - 0.03, 0.42, z0, cx + 0.03, 0.425, z1, hex('#e8d6aa')); break;
+      case 'basket': g.cyl(cx, cz, 0, 0.46, w / 2 * 0.86, w / 2, hex('#c9a66b'), 18); g.cyl(cx, cz, 0.44, 0.47, w / 2, w / 2, hex('#a8844c'), 18); break;
+      case 'heater':
+        g.box(x0, 0.04, z0, x1, 0.62, z1, hex('#f2f2ef'));
+        for (let k = 1; k < 5; k++) g.box(x0 + w * k / 5 - 0.008, 0.1, z1, x0 + w * k / 5 + 0.008, 0.56, z1 + 0.01, hex('#e07a3a')); break;
+      case 'crate':
+        g.box(x0, 0, z0, x1, 0.46, z1, hex('#b8894f'));
+        for (let k = 1; k < 4; k++) g.box(x0 - 0.003, k * 0.115 - 0.01, z0 - 0.003, x1 + 0.003, k * 0.115, z1 + 0.003, hex('#8c6234')); break;
+      case 'bench':
+        g.box(x0, 0.4, z0, x1, 0.46, z1, WOOD); legs(0.4, 0.025, 0.05, DWOOD); break;
+      case 'person': {
+        const looks = [{shirt:'#b4532a', pants:'#26324a', skin:'#c58c6a', hair:'#2a1b12'}, {shirt:'#2e4f7a', pants:'#5d5446', skin:'#8d5a3c', hair:'#141010'}];
+        const L = looks[idx % 2], yaw = idx % 2 ? Math.PI * 0.85 : -Math.PI * 0.2;
+        g.at(cx, 0, cz, yaw);
+        for (const s of [-1, 1]){
+          g.tube([0, 0.9, s * 0.1], [0, 0.08, s * 0.1], 0.075, hex(L.pants), 10, 0.06);
+          g.box(-0.04, 0, s * 0.1 - 0.05, 0.16, 0.08, s * 0.1 + 0.05, hex('#1b1b1d'));
+          g.tube([0, 1.42, s * 0.23], [0.02, 1.08, s * 0.25], 0.055, hex(L.shirt), 10, 0.048);
+          g.tube([0.02, 1.08, s * 0.25], [0.06, 0.8, s * 0.24], 0.045, hex(L.skin), 10, 0.04);
+        }
+        g.cyl(0, 0, 0.88, 1.46, 0.17, 0.21, hex(L.shirt), 18);
+        g.sph(0, 1.46, 0, 0.23, 0.06, 0.13, hex(L.shirt), 14, 6);
+        g.cyl(0, 0, 1.46, 1.54, 0.05, 0.05, hex(L.skin), 10, false);
+        g.sph(0.01, 1.64, 0, 0.1, 0.12, 0.1, hex(L.skin), 16, 10);
+        g.sph(-0.01, 1.69, 0, 0.105, 0.085, 0.105, hex(L.hair), 16, 8);
+        g.at(0, 0, 0);
+        break; }
+      default: g.box(x0, 0, z0, x1, 0.5, z1, hex('#aaa59c'));
+    }
+    return g;
+  }
+
+  /* ---- floor texture: wood, tile and concrete painted on a 2D canvas ---- */
+  function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const rgb = (c, k = 1) => `rgb(${Math.round(c[0]*k)},${Math.round(c[1]*k)},${Math.round(c[2]*k)})`;
+  function floorTexture(){
+    const c = document.createElement('canvas'); c.width = 2048; c.height = 1024;
+    const x = c.getContext('2d'), R = rng(3), sx = c.width / OUTER.w, sy = c.height / OUTER.h;
+    x.setTransform(sx, 0, 0, sy, -OUTER.x * sx, -OUTER.y * sy);
+    const wood = (x0, y0, w, h, base, vertical) => {
+      x.save(); x.beginPath(); x.rect(x0, y0, w, h); x.clip(); const P = 15;
+      if (vertical) for (let xx = x0; xx < x0 + w; xx += P){
+        x.fillStyle = rgb(base, 0.9 + R() * 0.16); x.fillRect(xx, y0, P, h); x.fillStyle = 'rgba(60,35,15,.25)'; x.fillRect(xx, y0, 0.8, h);
+        for (let yy = y0 + R() * 200; yy < y0 + h; yy += 170 + R() * 130) x.fillRect(xx, yy, P, 0.8); }
+      else for (let yy = y0; yy < y0 + h; yy += P){
+        x.fillStyle = rgb(base, 0.9 + R() * 0.16); x.fillRect(x0, yy, w, P); x.fillStyle = 'rgba(0,0,0,.05)';
+        for (let k = 0; k < 3; k++) x.fillRect(x0, yy + 1 + R() * (P - 2), w, 0.6);
+        x.fillStyle = 'rgba(60,35,15,.25)'; x.fillRect(x0, yy, w, 0.8);
+        for (let xx = x0 + R() * 200; xx < x0 + w; xx += 170 + R() * 130) x.fillRect(xx, yy, 0.8, P); }
+      x.restore(); };
+    const tile = (x0, y0, w, h, base) => { x.fillStyle = rgb(base); x.fillRect(x0, y0, w, h); x.fillStyle = rgb(base, 0.84);
+      for (let xx = x0; xx < x0 + w; xx += 32) x.fillRect(xx, y0, 1.2, h); for (let yy = y0; yy < y0 + h; yy += 32) x.fillRect(x0, yy, w, 1.2); };
+    const concrete = (x0, y0, w, h, base) => { x.fillStyle = rgb(base); x.fillRect(x0, y0, w, h);
+      for (let k = 0; k < w * h / 50; k++){ x.fillStyle = R() < 0.5 ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.06)'; x.fillRect(x0 + R() * w, y0 + R() * h, 1 + R() * 2, 1 + R() * 2); } };
+    wood(OUTER.x, OUTER.y, OUTER.w, OUTER.h, [214, 190, 152], false);
+    const looks = {'Living room':['wood',[176,124,78]], 'Bedroom':['wood',[190,142,96]], 'Study':['wood',[160,110,70]],
+                   'Kitchen':['tile',[236,232,222]], 'Bathroom':['tile',[214,228,232]], 'Garage':['concrete',[184,182,176]]};
+    for (const r of ROOMS){ const [k, b] = looks[r.name];
+      if (k === 'wood') wood(r.x, r.y, r.w, r.h, b, r.name === 'Study'); else if (k === 'tile') tile(r.x, r.y, r.w, r.h, b); else concrete(r.x, r.y, r.w, r.h, b); }
+    for (const [rx, ry, rw, rh, col] of [[95, 140, 230, 150, [150, 72, 60]], [60, 590, 250, 170, [96, 118, 140]], [40, 372, 70, 56, [70, 66, 62]]]){
+      x.fillStyle = rgb(col); x.fillRect(rx, ry, rw, rh); x.strokeStyle = rgb(col.map(v => Math.min(255, v + 40))); x.lineWidth = 2; x.strokeRect(rx + 6, ry + 6, rw - 12, rh - 12); }
+    x.font = `italic 22px ${FONT}`; x.fillStyle = 'rgba(40,30,22,.6)';
+    for (const r of ROOMS){ const top = r.doors.some(d => d.s === 't'); x.fillText(r.name, r.x + 16, top ? r.y + r.h - 16 : r.y + 32); }
+    x.fillText('Foyer', 46, 458);
+    return c;
+  }
+
+  let world = null;
+  function texFromCanvas(cv, mip){
+    const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cv);
+    if (mip){ gl.generateMipmap(gl.TEXTURE_2D); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR); }
+    else gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return t;
+  }
+  function buildWorld(){
+    compileShaders();
+    const W3 = {};
+    const ground = new Geo(); ground.box(-30, -0.06, -30, 50, -0.012, 40, hex('#080808')); W3.ground = mesh(ground);
+    const fx0 = OUTER.x * M, fz0 = OUTER.y * M, fx1 = (OUTER.x + OUTER.w) * M, fz1 = (OUTER.y + OUTER.h) * M;
+    W3.floorRect = new Float32Array([fx0, fz0, fx1 - fx0, fz1 - fz0]);
+    W3.floor = {pos:buf(new Float32Array([fx0, 0, fz0, fx1, 0, fz0, fx1, 0, fz1, fx0, 0, fz1])), idx:buf(new Uint16Array([0, 2, 1, 0, 3, 2]), gl.ELEMENT_ARRAY_BUFFER), n:6};
+    W3.floorTex = texFromCanvas(floorTexture(), true);
+    const an = gl.getExtension('EXT_texture_filter_anisotropic');
+    if (an) gl.texParameterf(gl.TEXTURE_2D, an.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, gl.getParameter(an.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+    // walls (white, burnt-orange cap) + door leaves
+    const wg = new Geo(), WALL = hex('#f6f5ef'), WT = 0.055, WH = 0.8;
+    for (const s of WALLS){
+      const x0 = Math.min(s.x1, s.x2) * M, x1 = Math.max(s.x1, s.x2) * M, z0 = Math.min(s.y1, s.y2) * M, z1 = Math.max(s.y1, s.y2) * M;
+      wg.box(x0 - WT, 0, z0 - WT, x1 + WT, WH, z1 + WT, WALL);
+      wg.box(x0 - WT - 0.003, WH, z0 - WT - 0.003, x1 + WT + 0.003, WH + 0.012, z1 + WT + 0.003, hex('#c23600'));
+    }
+    const DOORC = hex('#9c6a3c');
+    const leaf = (hx, hz, lx, lz, R) => { const ex = hx + lx * R, ez = hz + lz * R;
+      wg.box(Math.min(hx, ex) - 0.02, 0, Math.min(hz, ez) - 0.02, Math.max(hx, ex) + 0.02, 0.76, Math.max(hz, ez) + 0.02, DOORC); };
+    for (const r of ROOMS) for (const d of r.doors){
+      const R = (d.b - d.a) * M;
+      if (d.s === 't') leaf(d.a * M, r.y * M, 0, 1, R);
+      if (d.s === 'b') leaf(d.a * M, (r.y + r.h) * M, 0, -1, R);
+      if (d.s === 'l') d.hinge === 'b' ? leaf(r.x * M, d.b * M, 1, 0, R) : leaf(r.x * M, d.a * M, 1, 0, R);
+      if (d.s === 'r') leaf((r.x + r.w) * M, d.a * M, -1, 0, R);
+    }
+    leaf(OUTER.x * M, OUTER_DOORS[0].a * M, -1, 0, (OUTER_DOORS[0].b - OUTER_DOORS[0].a) * M);
+    W3.walls = mesh(wg);
+    let pi = 0;
+    W3.items = OBJECT_DEFS.map((o, i) => ({id:i, mesh:mesh(buildFurniture(o, o.c === 'person' ? pi++ : i)), grey:1}));
+    W3.robot = buildRobot();
+    W3.halo = flatMesh(discGeo(40, [0.35, 0.62, 1.0], 0.5, 0.0));
+    W3.ring = flatMesh(ringGeo(56, 0.93, 1.0, [0.45, 0.72, 1.0], 0.95));
+    W3.ringT = flatMesh(ringGeo(64, 0.86, 1.0, [1.0, 0.42, 0.17], 0.95));
+    W3.trail = {pos:gl.createBuffer(), col:gl.createBuffer(), n:0};
+    W3.plan = {pos:gl.createBuffer(), col:gl.createBuffer(), n:0};
+    W3.balls = new Map();
+    W3.shSize = 2048;
+    W3.shTex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, W3.shTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, W3.shSize, W3.shSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    W3.shFB = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, W3.shFB);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, W3.shTex, 0);
+    const rb = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, W3.shSize, W3.shSize);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    const Ld = [-0.42, 1.0, -0.3], l = Math.hypot(...Ld); W3.Ld = new Float32Array(Ld.map(v => v / l));
+    const c = [(fx0 + fx1) / 2, 0, (fz0 + fz1) / 2];
+    W3.center = c;
+    W3.LVP = m4.mul(m4.ortho(-12.5, 12.5, -12.5, 12.5, 1, 60), m4.look([c[0] + W3.Ld[0] * 25, W3.Ld[1] * 25, c[2] + W3.Ld[2] * 25], c, [0, 1, 0]));
+    W3.maskC = document.createElement('canvas'); W3.maskC.width = W / 2; W3.maskC.height = H / 2;
+    W3.maskX = W3.maskC.getContext('2d');
+    W3.maskTex = texFromCanvas(W3.maskC, false);
+    return W3;
+  }
+
+  function flatMesh(g){ return {pos:buf(new Float32Array(g.p)), col:buf(new Float32Array(g.c)), idx:buf(new Uint16Array(g.i), gl.ELEMENT_ARRAY_BUFFER), n:g.i.length}; }
+  function discGeo(seg, col, a0, a1){
+    const g = {p:[0, 0, 0], c:[...col, a0], i:[]};
+    for (let k = 0; k <= seg; k++){ const a = k / seg * Math.PI * 2; g.p.push(Math.cos(a), 0, Math.sin(a)); g.c.push(...col, a1); }
+    for (let k = 1; k <= seg; k++) g.i.push(0, k, k + 1);
+    return g;
+  }
+  function ringGeo(seg, r0, r1, col, a){
+    const g = {p:[], c:[], i:[]};
+    for (let k = 0; k <= seg; k++){ const t = k / seg * Math.PI * 2, cs = Math.cos(t), sn = Math.sin(t);
+      g.p.push(cs * r0, 0, sn * r0, cs * r1, 0, sn * r1); g.c.push(...col, a, ...col, a); }
+    for (let k = 0; k < seg; k++){ const s = k * 2; g.i.push(s, s + 1, s + 3, s, s + 3, s + 2); }
+    return g;
+  }
+
+  /* ---------------- humanoid robot ---------------- */
+  function buildRobot(){
+    const BODY = hex('#ecebe6'), JOINT = hex('#2a2a2f'), ACC = hex('#ff5a14');
+    const part = f => { const g = new Geo(); f(g); return mesh(g); };
+    return {
+      pelvis: part(g => { g.box(-0.1, -0.07, -0.16, 0.1, 0.07, 0.16, JOINT); g.box(-0.11, 0.02, -0.15, 0.11, 0.1, 0.15, BODY); }),
+      torso:  part(g => { g.cyl(0, 0, 0, 0.12, 0.09, 0.09, JOINT, 12); g.box(-0.12, 0.1, -0.2, 0.13, 0.48, 0.2, BODY);
+                          g.box(0.13, 0.26, -0.07, 0.137, 0.36, 0.07, ACC); g.box(-0.13, 0.12, -0.14, -0.12, 0.44, 0.14, hex('#cfcdc6')); }),
+      head:   part(g => { g.cyl(0, 0, 0, 0.08, 0.045, 0.045, JOINT, 10); g.sph(0, 0.17, 0, 0.12, 0.13, 0.115, BODY, 18, 12);
+                          g.box(0.075, 0.14, -0.09, 0.122, 0.205, 0.09, hex('#141416')); g.box(0.12, 0.155, -0.075, 0.127, 0.19, 0.075, ACC); }),
+      upper:  part(g => { g.sph(0, 0, 0, 0.065, 0.065, 0.065, JOINT, 12, 8); g.tube([0, 0, 0], [0, -0.27, 0], 0.048, BODY, 12, 0.042); }),
+      lower:  part(g => { g.sph(0, 0, 0, 0.048, 0.048, 0.048, JOINT, 10, 6); g.tube([0, 0, 0], [0, -0.25, 0], 0.04, BODY, 12, 0.034);
+                          g.sph(0, -0.29, 0, 0.045, 0.055, 0.035, JOINT, 10, 6); }),
+      thigh:  part(g => { g.sph(0, 0, 0, 0.07, 0.07, 0.07, JOINT, 12, 8); g.tube([0, 0, 0], [0, -0.39, 0], 0.07, BODY, 12, 0.058); }),
+      shin:   part(g => { g.sph(0, 0, 0, 0.058, 0.058, 0.058, JOINT, 10, 8); g.tube([0, 0, 0], [0, -0.39, 0], 0.055, BODY, 12, 0.045);
+                          g.box(-0.06, -0.45, -0.055, 0.15, -0.39, 0.055, JOINT); })
+    };
+  }
+  const RB = {phase:0, walk:0, lastX:START.x, lastY:START.y, reach:0};
+  function robotParts(S, now){
+    const moved = Math.hypot(S.robot.x - RB.lastX, S.robot.y - RB.lastY);
+    RB.lastX = S.robot.x; RB.lastY = S.robot.y;
+    RB.phase += moved * M * (Math.PI * 2 / 1.05);
+    RB.walk += ((moved > 0.05 ? 1 : 0) - RB.walk) * 0.12;
+    RB.reach += ((S.touch && S.touch.t < 95 ? 1 : 0) - RB.reach) * 0.08;
+    const ph = RB.phase, w = RB.walk, idle = Math.sin(now / 700) * 0.015;
+    const root = m4.mul(m4.T(S.robot.x * M, 0, S.robot.y * M), m4.Ry(-S.heading));
+    const pelvis = chain(root, m4.T(0, 0.9 + 0.02 * Math.abs(Math.cos(ph)) * w + idle * 0.3, 0));
+    const torso = chain(pelvis, m4.T(0, 0.06, 0), m4.Rz(-(0.05 * w + 0.12 * RB.reach)));
+    const head = chain(torso, m4.T(0, 0.48, 0), m4.Ry(Math.sin(now / 1300) * 0.25 * (1 - w)), m4.Rz(-0.1 * RB.reach));
+    const out = [['pelvis', pelvis], ['torso', torso], ['head', head]];
+    for (const s of [-1, 1]){
+      const legSw = 0.42 * Math.sin(ph + (s > 0 ? 0 : Math.PI)) * w;
+      const knee = 0.6 * Math.max(0, Math.sin(ph + (s > 0 ? 0 : Math.PI) + 1.4)) * w;
+      const hip = chain(pelvis, m4.T(0, -0.05, s * 0.1), m4.Rz(legSw));
+      out.push(['thigh', hip], ['shin', chain(hip, m4.T(0, -0.39, 0), m4.Rz(-knee))]);
+      const reach = s > 0 ? RB.reach : 0;
+      const armSw = -0.38 * Math.sin(ph + (s > 0 ? 0 : Math.PI)) * w * (1 - reach) + reach * 1.45;
+      const sh = chain(torso, m4.T(0, 0.43, s * 0.26), m4.Rx(-s * 0.08 * (1 - reach)), m4.Rz(armSw));
+      out.push(['upper', sh], ['lower', chain(sh, m4.T(0, -0.27, 0), m4.Rz(0.3 + 0.25 * w * (1 - reach) - 0.25 * reach))]);
+    }
+    return out;
+  }
+
+  /* ---- avoidance "balls": exact class-based region at the floor, domed over the object ---- */
+  function ballGeo(o, padPx){
+    const a = o.w / 2 * M, b = o.h / 2 * M, cx = (o.x + o.w / 2) * M, cz = (o.y + o.h / 2) * M, pad = padPx * M;
+    const Hh = (OBJ_H[o.c] || 0.8) + pad * 0.85;
+    const seg = 40, rings = 14, P = [], N = [], I = [];
+    const reach = (ux, uz, m) => { let lo = 0, hi = a + b + m + 1;
+      for (let k = 0; k < 22; k++){ const t = (lo + hi) / 2, px = Math.abs(ux * t), pz = Math.abs(uz * t);
+        const out = Math.hypot(Math.max(px - a, 0), Math.max(pz - b, 0)); (out > m || (m === 0 && (px > a || pz > b))) ? hi = t : lo = t; }
+      return lo; };
+    for (let j = 0; j <= rings; j++){
+      const phi = j / rings * Math.PI / 2, m = pad * Math.cos(phi), y = Hh * Math.sin(phi);
+      for (let k = 0; k <= seg; k++){ const th = k / seg * Math.PI * 2, ux = Math.cos(th), uz = Math.sin(th), t = reach(ux, uz, m);
+        P.push(cx + ux * t, y, cz + uz * t); }
+    }
+    const idx = (j, k) => j * (seg + 1) + k;
+    for (let j = 0; j <= rings; j++) for (let k = 0; k <= seg; k++){
+      const ox = P[idx(j, k)*3] - cx, oz = P[idx(j, k)*3+2] - cz, phi = j / rings * Math.PI / 2;
+      const hl = Math.hypot(ox, oz) || 1;
+      let n = [ox / hl * Math.cos(phi), Math.sin(phi), oz / hl * Math.cos(phi)];
+      const l = Math.hypot(...n); N.push(n[0] / l, n[1] / l, n[2] / l);
+    }
+    for (let j = 0; j < rings; j++) for (let k = 0; k < seg; k++){ const p = idx(j, k), q = idx(j + 1, k); I.push(p, q, p + 1, q, q + 1, p + 1); }
+    return {pos:buf(new Float32Array(P)), nrm:buf(new Float32Array(N)), idx:buf(new Uint16Array(I), gl.ELEMENT_ARRAY_BUFFER), n:I.length, c:[cx, Hh * 0.4, cz]};
+  }
+
+  /* ---- floor ribbons (trail and planned path) ---- */
+  function ribbon(pts, width, y, P = [], C = []){
+    for (let k = 0; k < pts.length - 1; k++){
+      const a = pts[k], b = pts[k + 1], dx = b.x - a.x, dz = b.z - a.z, l = Math.hypot(dx, dz);
+      if (l < 1e-4) continue;
+      const nx = -dz / l * width / 2, nz = dx / l * width / 2;
+      const q = [[a.x + nx, a.z + nz], [a.x - nx, a.z - nz], [b.x - nx, b.z - nz], [b.x + nx, b.z + nz]];
+      for (const v of [0, 1, 2, 0, 2, 3]){ P.push(q[v][0], y, q[v][1]); C.push(...b.c); }
+    }
+    return {P, C};
+  }
+  function upload(o, R){
+    gl.bindBuffer(gl.ARRAY_BUFFER, o.pos); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(R.P), gl.DYNAMIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, o.col); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(R.C), gl.DYNAMIC_DRAW);
+    o.n = R.P.length / 3;
+  }
+  const C_EXPLOIT = [0.996, 1.0, 0.98, 0.95], C_EXPLORE = [1.0, 0.42, 0.17, 0.98];
+  function updateTrail(S){
+    const T = S.trail, pts = [];
+    for (let k = 0; k < T.length; k += 3) pts.push({x:T[k].x * M, z:T[k].y * M, c:T[k].m === 'explore' ? C_EXPLORE : C_EXPLOIT});
+    if (T.length) pts.push({x:S.robot.x * M, z:S.robot.y * M, c:S.mode === 'explore' ? C_EXPLORE : C_EXPLOIT});
+    upload(world.trail, ribbon(pts, 0.07, 0.018));
+    const P = [], C = [], col = S.mode === 'explore' ? [1.0, 0.42, 0.17, 0.75] : [0.996, 1.0, 0.98, 0.6];
+    const path = [{x:S.robot.x, y:S.robot.y}, ...S.path];
+    let carry = 0, on = true;
+    for (let k = 0; k < path.length - 1; k++){
+      const a = path[k], b = path[k + 1], L = Math.hypot(b.x - a.x, b.y - a.y) * M; let t = 0;
+      while (t < L - 1e-6){
+        const lim = on ? 0.22 : 0.16, step = Math.min(lim - carry, L - t);
+        if (on) ribbon([{x:(a.x + (b.x - a.x) * t / L) * M, z:(a.y + (b.y - a.y) * t / L) * M, c:col},
+                        {x:(a.x + (b.x - a.x) * (t + step) / L) * M, z:(a.y + (b.y - a.y) * (t + step) / L) * M, c:col}], 0.045, 0.022, P, C);
+        t += step; carry += step; if (carry >= lim - 1e-6){ carry = 0; on = !on; }
+      }
+    }
+    upload(world.plan, {P, C});
+  }
+
+  /* ---- fog of war ---- */
+  function rayHit(ox, oy, dx, dy, maxT){
+    let best = maxT;
+    for (const s of WALLS){
+      const ex = s.x2 - s.x1, ey = s.y2 - s.y1, den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-9) continue;
+      const t = ((s.x1 - ox) * ey - (s.y1 - oy) * ex) / den, u = ((s.x1 - ox) * dy - (s.y1 - oy) * dx) / den;
+      if (t > 0 && t < best && u >= 0 && u <= 1) best = t;
+    }
+    return best;
+  }
+  function revealFrom(x, y){
+    const c = world.maskX, N = 200;
+    c.save(); c.setTransform(0.5, 0, 0, 0.5, 0, 0); c.globalCompositeOperation = 'lighter';
+    const g = c.createRadialGradient(x, y, 0, x, y, R_SENSE);
+    g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.7, 'rgba(255,255,255,.9)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+    c.fillStyle = g; c.beginPath();
+    for (let k = 0; k < N; k++){ const a = k / N * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a), t = rayHit(x, y, dx, dy, R_SENSE);
+      k ? c.lineTo(x + dx * t, y + dy * t) : c.moveTo(x + dx * t, y + dy * t); }
+    c.closePath(); c.fill(); c.restore();
+  }
+
+  /* ---------------- camera ---------------- */
+  const cam = {yaw:-0.1, pitch:1.0, dist:21, tx:0, tz:0, init:false};
+  const camDefault = () => { cam.yaw = -0.1; cam.pitch = 1.0; cam.dist = 21; };
+  (function controls(){
+    let drag = null;
+    canvas.addEventListener('pointerdown', e => { drag = {x:e.clientX, y:e.clientY}; try { canvas.setPointerCapture(e.pointerId); } catch (_){} });
+    canvas.addEventListener('pointermove', e => { if (!drag) return;
+      cam.yaw -= (e.clientX - drag.x) * 0.006; cam.pitch = Math.min(1.45, Math.max(0.3, cam.pitch + (e.clientY - drag.y) * 0.005));
+      drag = {x:e.clientX, y:e.clientY}; });
+    const end = () => { drag = null; };
+    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+    canvas.addEventListener('dblclick', camDefault);
+    canvas.addEventListener('wheel', e => { if (!e.ctrlKey && !e.metaKey) return;      // pinch / ctrl+scroll zooms; plain scroll scrolls the page
+      e.preventDefault(); cam.dist = Math.min(30, Math.max(7, cam.dist * Math.exp(e.deltaY * 0.004))); }, {passive:false});
+  })();
+
+  /* ---------------- overlays ---------------- */
+  const labels = new Map();
+  function project(VP, x, y, z){
+    const v = m4.xf(VP, x, y, z); if (v[3] <= 0.05) return null;
+    return [(v[0] / v[3] * 0.5 + 0.5) * canvas.clientWidth, (1 - (v[1] / v[3] * 0.5 + 0.5)) * canvas.clientHeight];
+  }
+  function updateLabels(S, VP){
+    const T = S.target, placed = [];
+    const free = (x, y, w) => !placed.some(r => x - w / 2 < r[2] && x + w / 2 > r[0] && y - 19 < r[3] && y > r[1]);
+    const order = S.objs.filter(o => o.seen).sort((a, b) => (b.y + b.h) - (a.y + a.h));
+    for (const o of S.objs) if (!o.seen){ const el = labels.get(o.id); if (el) el.style.opacity = 0; }
+    for (const o of order){
+      let el = labels.get(o.id);
+      if (!el){ el = document.createElement('div'); el.className = 'lab'; overlay.appendChild(el); labels.set(o.id, el); }
+      const set = labelSet(o), tgt = isTarget(o, T);
+      const txt = tgt ? `✓ ${o.name}` : '{' + set.map(k => CLASSES[k].label).join(', ') + '}';
+      if (el.textContent !== txt) el.textContent = txt;
+      const cls = 'lab' + (tgt ? ' tgt' : set.length > 1 ? ' amb' : '');
+      if (el.className !== cls) el.className = cls;
+      const p = project(VP, (o.x + o.w / 2) * M, (OBJ_H[o.c] || 0.8) + 0.18, (o.y + o.h / 2) * M);
+      if (!p){ el.style.opacity = 0; continue; }
+      const w = txt.length * 6.3 + 14; let y = p[1];
+      for (let k = 0; k < 5 && !free(p[0], y, w); k++) y -= 20;
+      placed.push([p[0] - w / 2, y - 19, p[0] + w / 2, y]);
+      el.style.opacity = 1; el.style.left = p[0].toFixed(1) + 'px'; el.style.top = y.toFixed(1) + 'px';
+    }
+  }
+  let bubbleIdx = 0, bubbleUntil = 0, bubbleShown = null, thinkUntil = 0;
+  function updateBubble(S, VP, now){
+    const ev = S.events;
+    if (now >= bubbleUntil && bubbleIdx < ev.length){
+      if (ev.length - bubbleIdx > 2) bubbleIdx = ev.length - 2;
+      bubbleShown = ev[bubbleIdx++];
+      bubbleEl.textContent = bubbleShown.text;
+      bubbleEl.className = 'bubble show' + (bubbleShown.kind === 'found' ? ' found' : '');
+      bubbleUntil = now + Math.min(4600, 1500 + bubbleShown.text.length * 36);
+      thinkUntil = now + (bubbleShown.kind === 'found' ? 300 : 650);       // pause briefly to "think"
+    } else if (bubbleShown && now > bubbleUntil + 2200 && bubbleIdx >= ev.length && !S.done){
+      bubbleEl.className = 'bubble'; bubbleShown = null;
+    }
+    const p = project(VP, S.robot.x * M, 1.95, S.robot.y * M);
+    if (p){ bubbleEl.style.left = Math.max(130, Math.min(canvas.clientWidth - 130, p[0])).toFixed(1) + 'px'; bubbleEl.style.top = Math.max(70, p[1]).toFixed(1) + 'px'; }
+  }
+
+  /* ---------------- frame rendering ---------------- */
+  let frameNo = 0;
+  function drawLit(m, Mm, grey){
+    bindAttr(SH_LIT, 'aP', m.pos, 3); bindAttr(SH_LIT, 'aN', m.nrm, 3); bindAttr(SH_LIT, 'aC', m.col, 3);
+    gl.uniformMatrix4fv(SH_LIT.u.uM, false, Mm); gl.uniformMatrix3fv(SH_LIT.u.uN, false, m4.n3(Mm));
+    gl.uniform1f(SH_LIT.u.uGrey, grey || 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.idx); gl.drawElements(gl.TRIANGLES, m.n, gl.UNSIGNED_SHORT, 0);
+  }
+  const I4 = (() => { const m = new Float32Array(16); m[0] = m[5] = m[10] = m[15] = 1; return m; })();
+  function render(now){
+    if (!gl) return;
+    if (!world) world = buildWorld();
+    const S = sim.S, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const cw = Math.max(2, Math.round(canvas.clientWidth * dpr)), ch = Math.max(2, Math.round(canvas.clientHeight * dpr));
+    if (canvas.width !== cw || canvas.height !== ch){ canvas.width = cw; canvas.height = ch; }
+    frameNo++;
+
+    revealFrom(S.robot.x, S.robot.y);
+    if (frameNo % 2 === 0 || frameNo < 3){
+      gl.bindTexture(gl.TEXTURE_2D, world.maskTex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, world.maskC);
+    }
+    for (const it of world.items){ const o = S.objs[it.id]; it.grey += ((o.seen ? 0 : 1) - it.grey) * 0.08; }
+    if (frameNo % 4 === 0 || frameNo < 3) updateTrail(S);
+
+    const rx = S.robot.x * M, rz = S.robot.y * M;
+    const tx = world.center[0] * 0.8 + rx * 0.2, tz = world.center[2] * 0.85 + rz * 0.15 - 0.4;
+    if (!cam.init){ cam.tx = tx; cam.tz = tz; cam.init = true; }
+    if (!cam.lock){ cam.tx += (tx - cam.tx) * 0.04; cam.tz += (tz - cam.tz) * 0.04; }
+    const eye = new Float32Array([cam.tx + cam.dist * Math.sin(cam.yaw) * Math.cos(cam.pitch), cam.dist * Math.sin(cam.pitch), cam.tz + cam.dist * Math.cos(cam.yaw) * Math.cos(cam.pitch)]);
+    const VP = m4.mul(m4.persp(0.62, cw / ch, 0.1, 120), m4.look(eye, [cam.tx, 0.4, cam.tz], [0, 1, 0]));
+    const parts = robotParts(S, now);
+    const opaque = [[world.walls, I4, null], ...world.items.map(it => [it.mesh, I4, it]), ...parts.map(([n, m]) => [world.robot[n], m, null])];
+
+    gl.enable(gl.DEPTH_TEST); gl.disable(gl.CULL_FACE); gl.disable(gl.BLEND); gl.depthMask(true);
+    // 1) shadow map
+    gl.bindFramebuffer(gl.FRAMEBUFFER, world.shFB); gl.viewport(0, 0, world.shSize, world.shSize);
+    gl.clearColor(1, 1, 1, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    useProg(SH_DEPTH); gl.uniformMatrix4fv(SH_DEPTH.u.uL, false, world.LVP);
+    for (const [m, Mm] of opaque){ bindAttr(SH_DEPTH, 'aP', m.pos, 3); gl.uniformMatrix4fv(SH_DEPTH.u.uM, false, Mm);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.idx); gl.drawElements(gl.TRIANGLES, m.n, gl.UNSIGNED_SHORT, 0); }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null); gl.viewport(0, 0, cw, ch);
+    gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    const lightU = prog => { gl.uniformMatrix4fv(prog.u.uVP, false, VP); gl.uniformMatrix4fv(prog.u.uL, false, world.LVP);
+      gl.uniform3fv(prog.u.uLd, world.Ld); gl.uniform3fv(prog.u.uEye, eye); gl.uniform1f(prog.u.uTx, 1 / world.shSize);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, world.shTex); gl.uniform1i(prog.u.uSh, 0); };
+    // 2) floor
+    useProg(SH_FLOOR); lightU(SH_FLOOR);
+    gl.uniform4fv(SH_FLOOR.u.uRect, world.floorRect);
+    gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, world.floorTex); gl.uniform1i(SH_FLOOR.u.uTex, 1);
+    gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, world.maskTex); gl.uniform1i(SH_FLOOR.u.uMask, 2);
+    bindAttr(SH_FLOOR, 'aP', world.floor.pos, 3);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, world.floor.idx); gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    // 3) opaque lit geometry
+    useProg(SH_LIT); lightU(SH_LIT);
+    drawLit(world.ground, I4, 0);
+    for (const [m, Mm, it] of opaque) drawLit(m, Mm, it ? it.grey : 0);
+    // 4) transparent: paths, state uncertainty, target ring, avoidance balls
+    gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false);
+    useProg(SH_FLAT); gl.uniformMatrix4fv(SH_FLAT.u.uVP, false, VP);
+    const flat = (m, Mm, a, n) => { bindAttr(SH_FLAT, 'aP', m.pos, 3); bindAttr(SH_FLAT, 'aC', m.col, 4);
+      gl.uniformMatrix4fv(SH_FLAT.u.uM, false, Mm); gl.uniform1f(SH_FLAT.u.uA, a);
+      if (m.idx){ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.idx); gl.drawElements(gl.TRIANGLES, m.n, gl.UNSIGNED_SHORT, 0); }
+      else gl.drawArrays(gl.TRIANGLES, 0, n); };
+    if (world.trail.n) flat(world.trail, I4, 1, world.trail.n);
+    if (world.plan.n) flat(world.plan, I4, 1, world.plan.n);
+    const s = S.sigma * (1 + Math.sin(now / 500) * 0.05) * M, body = 9 * M;
+    const base = chain(m4.T(rx, 0.03, rz), m4.Ry(-S.heading));
+    flat(world.halo, chain(base, m4.S(body + 4 * s, 1, body + 4 * s)), 1);
+    flat(world.ring, chain(base, m4.S(body + 1.0 * s + 0.05, 1, body + 0.75 * s + 0.05)), 0.9);
+    flat(world.ring, chain(base, m4.S(body + 2.0 * s + 0.08, 1, body + 1.5 * s + 0.08)), 0.5);
+    if (S.found){
+      const o = S.found, r = Math.max(o.w, o.h) / 2 * M + 0.25 + 0.05 * Math.sin(now / 200);
+      flat(world.ringT, chain(m4.T((o.x + o.w / 2) * M, 0.03, (o.y + o.h / 2) * M), m4.S(r, 1, r)), 1);
+    }
+    useProg(SH_BALL); gl.uniformMatrix4fv(SH_BALL.u.uVP, false, VP); gl.uniform3fv(SH_BALL.u.uEye, eye);
+    const balls = [];
+    for (const o of S.objs){
+      if (!o.seen || isTarget(o, S.target)) continue;
+      const pad = padOf(o, S.target);
+      if (pad <= 0) continue;
+      let b = world.balls.get(o.id);
+      if (!b || b.pad !== pad){ b = {pad, m:ballGeo(o, pad)}; world.balls.set(o.id, b); }
+      balls.push({m:b.m, amb:labelSet(o).length > 1, d:Math.hypot(b.m.c[0] - eye[0], b.m.c[1] - eye[1], b.m.c[2] - eye[2])});
+    }
+    balls.sort((a, b) => b.d - a.d);
+    for (const b of balls){
+      bindAttr(SH_BALL, 'aP', b.m.pos, 3); bindAttr(SH_BALL, 'aN', b.m.nrm, 3);
+      gl.uniform3fv(SH_BALL.u.uCol, [1.0, 0.16, 0.12]);
+      gl.uniform1f(SH_BALL.u.uA, b.amb ? 0.5 + 0.12 * Math.sin(now / 260) : 0.3);
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, b.m.idx); gl.drawElements(gl.TRIANGLES, b.m.n, gl.UNSIGNED_SHORT, 0);
+    }
+    gl.depthMask(true); gl.disable(gl.BLEND);
+
+    updateLabels(S, VP);
+    updateBubble(S, VP, now);
+  }
+
+  /* ---------------- formula (ConformalNL2LTL) ---------------- */
+  const tokHTML = t => t.startsWith('π:') ? `<i>π</i><sub>${t.slice(2)}</sub>` : t;
   function buildFormula(key){
     fTimers.forEach(clearTimeout); fTimers = [];
     phiEl.innerHTML = '';
@@ -866,457 +1819,24 @@
 
   function startTask(key){
     sim = createSim(key);
-    maskX.clearRect(0, 0, W, H);
+    if (world){ world.maskX.clearRect(0, 0, W / 2, H / 2); world.balls.clear(); }
+    for (const el of labels.values()) el.remove();
+    labels.clear();
+    bubbleIdx = 0; bubbleUntil = 0; bubbleShown = null; thinkUntil = 0; bubbleEl.className = 'bubble';
+    RB.lastX = START.x; RB.lastY = START.y; RB.walk = 0; RB.reach = 0;
+    cam.init = false;
     phase = 'translating';
     keySig = '';
     buildFormula(key);
   }
   sel.addEventListener('change', () => startTask(sel.value));
 
-  /* ---- helpers ---- */
-  function roundRect(c, x, y, w, h, r){
-    r = Math.max(0, Math.min(r, w / 2, h / 2));
-    c.beginPath();
-    c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
-    c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
-  }
-  function rayHit(ox, oy, dx, dy, maxT){
-    let best = maxT;
-    for (const s of WALLS){
-      const ex = s.x2 - s.x1, ey = s.y2 - s.y1, den = dx * ey - dy * ex;
-      if (Math.abs(den) < 1e-9) continue;
-      const t = ((s.x1 - ox) * ey - (s.y1 - oy) * ex) / den;
-      const u = ((s.x1 - ox) * dy - (s.y1 - oy) * dx) / den;
-      if (t > 0 && t < best && u >= 0 && u <= 1) best = t;
-    }
-    return best;
-  }
-  function revealFrom(x, y){
-    const N = 220;
-    maskX.save();
-    maskX.globalCompositeOperation = 'lighter';
-    const g = maskX.createRadialGradient(x, y, 0, x, y, R_SENSE);
-    g.addColorStop(0, 'rgba(255,255,255,1)');
-    g.addColorStop(0.7, 'rgba(255,255,255,.9)');
-    g.addColorStop(1, 'rgba(255,255,255,0)');
-    maskX.fillStyle = g;
-    maskX.beginPath();
-    for (let k = 0; k < N; k++){
-      const a = k / N * Math.PI * 2, dx = Math.cos(a), dy = Math.sin(a);
-      const t = rayHit(x, y, dx, dy, R_SENSE);
-      if (k === 0) maskX.moveTo(x + dx * t, y + dy * t); else maskX.lineTo(x + dx * t, y + dy * t);
-    }
-    maskX.closePath(); maskX.fill();
-    maskX.restore();
-  }
-
-  /* ---------- home-style static layers (drawn once) ---------- */
-  const DARK = '58,52,46';
-  function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
-  const rgb = (c, k = 1) => `rgb(${Math.round(c[0]*k)},${Math.round(c[1]*k)},${Math.round(c[2]*k)})`;
-
-  function woodFloor(c, x, y, w, h, base, R, vertical){
-    c.save(); c.beginPath(); c.rect(x, y, w, h); c.clip();
-    const P = 15;
-    if (vertical){
-      for (let xx = x; xx < x + w; xx += P){
-        c.fillStyle = rgb(base, 0.9 + R() * 0.16); c.fillRect(xx, y, P, h);
-        c.fillStyle = 'rgba(0,0,0,.05)';
-        for (let g = 0; g < 3; g++) c.fillRect(xx + 1 + R() * (P - 2), y, 1, h);
-        c.fillStyle = 'rgba(60,35,15,.2)'; c.fillRect(xx, y, 1, h);
-        for (let yy = y + R() * 200; yy < y + h; yy += 170 + R() * 130) c.fillRect(xx, yy, P, 1);
-      }
-    } else {
-      for (let yy = y; yy < y + h; yy += P){
-        c.fillStyle = rgb(base, 0.9 + R() * 0.16); c.fillRect(x, yy, w, P);
-        c.fillStyle = 'rgba(0,0,0,.05)';
-        for (let g = 0; g < 3; g++) c.fillRect(x, yy + 1 + R() * (P - 2), w, 1);
-        c.fillStyle = 'rgba(60,35,15,.2)'; c.fillRect(x, yy, w, 1);
-        for (let xx = x + R() * 200; xx < x + w; xx += 170 + R() * 130) c.fillRect(xx, yy, 1, P);
-      }
-    }
-    c.restore();
-  }
-  function tileFloor(c, x, y, w, h, base){
-    c.fillStyle = rgb(base); c.fillRect(x, y, w, h);
-    c.fillStyle = rgb(base, 0.86);
-    for (let xx = x; xx < x + w; xx += 32) c.fillRect(xx, y, 1.5, h);
-    for (let yy = y; yy < y + h; yy += 32) c.fillRect(x, yy, w, 1.5);
-  }
-  function concreteFloor(c, x, y, w, h, base, R){
-    c.fillStyle = rgb(base); c.fillRect(x, y, w, h);
-    for (let k = 0; k < w * h / 60; k++){
-      c.fillStyle = R() < 0.5 ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.07)';
-      c.fillRect(x + R() * w, y + R() * h, 1 + R() * 2, 1 + R() * 2);
-    }
-  }
-
-  // one-shot drop shadow on the next fill
-  let shadowNext = false;
-  function fillShape(c, fill){
-    if (shadowNext){ c.save(); c.shadowColor = 'rgba(40,30,20,.32)'; c.shadowBlur = 7; c.shadowOffsetX = 3; c.shadowOffsetY = 4; }
-    c.fillStyle = fill; c.fill();
-    if (shadowNext){ c.restore(); shadowNext = false; }
-  }
-  function rrF(c, x, y, w, h, r, fill, stroke, lw = 1.8){
-    roundRect(c, x, y, w, h, r); fillShape(c, fill);
-    if (stroke){ c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); }
-  }
-  function circF(c, x, y, r, fill, stroke, lw = 1.8){
-    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); fillShape(c, fill);
-    if (stroke){ c.strokeStyle = stroke; c.lineWidth = lw; c.stroke(); }
-  }
-  function line(c, x1, y1, x2, y2, col, lw){
-    c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.strokeStyle = col; c.lineWidth = lw; c.lineCap = 'round'; c.stroke();
-  }
-
-  function drawFurniture(c, o){
-    const {x, y, w, h} = o, cx = x + w / 2, cy = y + h / 2;
-    const WOOD = [150,98,58], DWOOD = [112,72,42];
-    const box = (col, r = 4) => rrF(c, x, y, w, h, r, rgb(col), rgb(col, .7));
-    shadowNext = true;
-    switch (o.c){
-      case 'sofa':
-        box([126,150,136], 10);
-        rrF(c, x + 4, y + 4, w - 8, h * .32, 6, 'rgb(104,128,114)');
-        for (let k = 0; k < 3; k++) rrF(c, x + 8 + k * (w - 16) / 3, y + h * .4, (w - 16) / 3 - 4, h * .5, 6, 'rgb(142,166,152)');
-        break;
-      case 'bed':
-        box(DWOOD, 5);
-        rrF(c, x + 6, y + 6, w - 12, h - 12, 5, 'rgb(246,243,236)');
-        for (let k = 0; k < 2; k++) rrF(c, x + 12 + k * (w - 24) / 2, y + 12, (w - 24) / 2 - 8, h * .18, 8, 'rgb(255,255,252)', 'rgb(210,206,198)', 1);
-        rrF(c, x + 6, y + h * .42, w - 12, h * .58 - 6, 4, 'rgb(132,158,186)');
-        line(c, x + 6, y + h * .42, x + w - 6, y + h * .42, 'rgb(110,136,164)', 3);
-        break;
-      case 'tv':
-        box([34,34,38], 2); line(c, x + 2, y + 6, x + 2, y + h - 6, 'rgb(90,96,110)', 2); break;
-      case 'lamp':
-        circF(c, cx, cy, w / 2, 'rgb(240,222,170)', 'rgb(176,150,96)'); circF(c, cx, cy, w / 6, 'rgb(176,150,96)'); break;
-      case 'plant':
-        circF(c, cx, cy, w / 2, 'rgb(178,96,64)');
-        for (let k = 0; k < 7; k++){ const a = k * 2 * Math.PI / 7; circF(c, cx + Math.cos(a) * w * .28, cy + Math.sin(a) * w * .28, w * .26, 'rgb(70,132,70)'); }
-        circF(c, cx, cy, w * .18, 'rgb(92,156,88)'); break;
-      case 'fridge':
-        rrF(c, x, y, w, h, 3, 'rgb(232,234,236)', 'rgb(150,154,160)');
-        line(c, x + 3, y + h * .35, x + w - 3, y + h * .35, 'rgb(160,164,170)', 2);
-        line(c, x + w - 10, y + 8, x + w - 10, y + h * .3, 'rgb(120,124,130)', 3); break;
-      case 'stove':
-        rrF(c, x, y, w, h, 3, 'rgb(208,210,212)', 'rgb(120,122,126)');
-        for (const i of [.28,.72]) for (const j of [.3,.72]){ c.beginPath(); c.arc(x + w * i, y + h * j, w * .14, 0, 7); c.strokeStyle = 'rgb(48,48,52)'; c.lineWidth = 2; c.stroke(); }
-        break;
-      case 'table': case 'desk':
-        box(o.c === 'table' ? [170,120,74] : [132,88,52]);
-        for (let k = 1; k < 4; k++) line(c, x + 6, y + h * k / 4, x + w - 6, y + h * k / 4, 'rgba(90,55,25,.35)', 1);
-        if (o.c === 'desk') rrF(c, x + w * .35, y + h * .2, w * .3, h * .35, 3, 'rgb(40,42,48)');
-        break;
-      case 'chair': box(WOOD, 6); rrF(c, x + 3, y + 3, w - 6, h * .22, 4, rgb(DWOOD)); break;
-      case 'stool': circF(c, cx, cy, w / 2, rgb(WOOD), rgb(DWOOD)); break;
-      case 'shelf': case 'wardrobe': case 'cabinet': {
-        box(o.c === 'cabinet' ? WOOD : DWOOD, 3);
-        const n = o.c === 'shelf' ? 5 : 2;
-        for (let k = 1; k < n; k++){
-          if (h > w) line(c, x + 3, y + h * k / n, x + w - 3, y + h * k / n, 'rgb(84,52,30)', 2);
-          else line(c, x + w * k / n, y + 3, x + w * k / n, y + h - 3, 'rgb(84,52,30)', 2);
-        }
-        break; }
-      case 'sink':
-        rrF(c, x, y, w, h, 4, 'rgb(222,222,218)', 'rgb(150,150,146)');
-        c.beginPath(); c.ellipse(cx, cy, w * .32, h * .3, 0, 0, 7); c.fillStyle = '#fafafa'; c.fill(); c.strokeStyle = 'rgb(160,164,168)'; c.lineWidth = 2; c.stroke(); break;
-      case 'tub':
-        rrF(c, x, y, w, h, 14, 'rgb(250,250,250)', 'rgb(160,164,168)'); rrF(c, x + 8, y + 8, w - 16, h - 16, 12, 'rgb(214,232,240)'); break;
-      case 'car': {
-        // top-down sedan, front to the right
-        rrF(c, x, y, w, h, h * .3, 'rgb(44,72,110)');                      // shadowed body
-        for (const fx of [.13, .71]){
-          rrF(c, x + w * fx, y - h * .05, w * .15, h * .16, 4, 'rgb(28,28,30)');
-          rrF(c, x + w * fx, y + h * .89, w * .15, h * .16, 4, 'rgb(28,28,30)');
-        }
-        rrF(c, x, y, w, h, h * .3, 'rgb(44,72,110)', 'rgb(26,44,70)', 2);
-        rrF(c, x + w * .62, y - h * .09, w * .04, h * .1, 2, 'rgb(30,48,76)');
-        rrF(c, x + w * .62, y + h * .99, w * .04, h * .1, 2, 'rgb(30,48,76)');
-        line(c, x + w * .72, y + h * .18, x + w * .95, y + h * .26, 'rgb(60,92,134)', 2);
-        line(c, x + w * .72, y + h * .82, x + w * .95, y + h * .74, 'rgb(60,92,134)', 2);
-        const quad = (pts, col) => { c.beginPath(); pts.forEach(([u, v], k) => k ? c.lineTo(x + w * u, y + h * v) : c.moveTo(x + w * u, y + h * v)); c.closePath(); c.fillStyle = col; c.fill(); };
-        quad([[.54,.16],[.68,.09],[.68,.91],[.54,.84]], 'rgb(156,190,212)');
-        quad([[.19,.12],[.28,.17],[.28,.83],[.19,.88]], 'rgb(104,140,168)');
-        quad([[.28,.07],[.54,.07],[.54,.13],[.28,.13]], 'rgb(104,140,168)');
-        quad([[.28,.87],[.54,.87],[.54,.93],[.28,.93]], 'rgb(104,140,168)');
-        rrF(c, x + w * .28, y + h * .16, w * .26, h * .68, 6, 'rgb(58,90,132)');
-        for (const vy of [.1, .78]){
-          rrF(c, x + w * .955, y + h * vy, w * .03, h * .12, 2, 'rgb(250,236,170)');
-          rrF(c, x + w * .012, y + h * vy, w * .025, h * .12, 2, 'rgb(200,50,46)');
-        }
-        break; }
-      case 'toolbox': box([190,50,44], 3); line(c, x + w * .3, cy, x + w * .7, cy, 'rgb(60,20,18)', 3); break;
-      case 'coatrack':
-        circF(c, cx, cy, w / 2, rgb(DWOOD));
-        for (let k = 0; k < 4; k++){ const a = k * Math.PI / 2 + Math.PI / 4; line(c, cx, cy, cx + Math.cos(a) * w * .7, cy + Math.sin(a) * w * .7, rgb(DWOOD), 3); }
-        break;
-      case 'ottoman': box([212,162,76], 10); rrF(c, x + 6, y + 6, w - 12, h - 12, 8, 'rgb(226,180,98)'); break;
-      case 'umbrella': circF(c, cx, cy, w / 2, 'rgb(60,64,72)'); circF(c, cx, cy, w / 4, 'rgb(140,60,70)'); break;
-      case 'bin': circF(c, cx, cy, w / 2, 'rgb(140,146,150)'); c.beginPath(); c.arc(cx, cy, w / 2 - 4, 0, 7); c.strokeStyle = 'rgb(110,116,120)'; c.lineWidth = 2; c.stroke(); break;
-      case 'printer': rrF(c, x, y, w, h, 3, 'rgb(226,226,224)', 'rgb(140,140,138)'); rrF(c, x + w * .2, y + h * .55, w * .6, h * .18, 2, 'rgb(60,60,62)'); break;
-      case 'box': box([200,162,112], 2); line(c, cx, y + 2, cx, y + h - 2, 'rgb(232,214,170)', 4); break;
-      case 'basket':
-        box([200,166,106], 8);
-        for (let k = 1; k < 5; k++){ line(c, x + w * k / 5, y + 4, x + w * k / 5, y + h - 4, 'rgb(160,124,70)', 1); line(c, x + 4, y + h * k / 5, x + w - 4, y + h * k / 5, 'rgb(160,124,70)', 1); }
-        break;
-      case 'heater':
-        rrF(c, x, y, w, h, 3, 'rgb(244,244,242)', 'rgb(150,150,148)');
-        for (let k = 1; k < 5; k++) line(c, x + w * k / 5, y + 4, x + w * k / 5, y + h - 4, 'rgb(226,116,60)', 2);
-        break;
-      case 'bike': {
-        // side-view bicycle
-        shadowNext = false;
-        c.beginPath(); c.ellipse(cx + 3, y + h - 3, w * .48, h * .1, 0, 0, 7); c.fillStyle = 'rgba(40,30,20,.18)'; c.fill();
-        const r = h * .33, ry = y + h - r - 2, rx = x + r + 2, fx = x + w - r - 2;
-        for (const hx of [rx, fx]){
-          for (let k = 0; k < 8; k++){ const a = k * Math.PI / 8;
-            line(c, hx - Math.cos(a) * r * .86, ry - Math.sin(a) * r * .86, hx + Math.cos(a) * r * .86, ry + Math.sin(a) * r * .86, 'rgb(190,194,198)', 1); }
-          c.beginPath(); c.arc(hx, ry, r * .88, 0, 7); c.strokeStyle = 'rgb(150,154,160)'; c.lineWidth = 2; c.stroke();
-          c.beginPath(); c.arc(hx, ry, r, 0, 7); c.strokeStyle = 'rgb(38,38,42)'; c.lineWidth = 4; c.stroke();
-          circF(c, hx, ry, 3, 'rgb(90,90,96)');
-        }
-        const bb = [rx + .46 * (fx - rx), ry - r * .05], st = [bb[0] - r * .38, ry - r * 1.42];
-        const sc = [st[0] + r * .06, st[1] + r * .18], ht = [fx - r * .6, ry - r * 1.32], hb = [fx - r * .47, ry - r * .9];
-        c.beginPath(); c.arc(bb[0], bb[1], r * .3, 0, 7); c.strokeStyle = 'rgb(70,70,76)'; c.lineWidth = 2; c.stroke();
-        line(c, rx, ry - r * .12, bb[0], bb[1] - r * .3, 'rgb(120,120,126)', 1);
-        line(c, rx, ry + r * .12, bb[0], bb[1] + r * .3, 'rgb(120,120,126)', 1);
-        for (const [p0, p1] of [[bb, sc], [sc, ht], [bb, hb], [[rx, ry], bb], [[rx, ry], sc], [hb, ht]]) line(c, p0[0], p0[1], p1[0], p1[1], 'rgb(178,40,40)', 4);
-        line(c, hb[0], hb[1], fx, ry, 'rgb(140,30,30)', 3);
-        line(c, sc[0], sc[1], st[0] - r * .05, st[1] - r * .2, 'rgb(60,60,64)', 3);
-        rrF(c, st[0] - r * .42, st[1] - r * .34, r * .7, r * .2, r * .1, 'rgb(30,30,32)');
-        const stem = [ht[0] + r * .04, ht[1] - r * .22];
-        line(c, ht[0], ht[1], stem[0], stem[1], 'rgb(60,60,64)', 3);
-        line(c, stem[0], stem[1], stem[0] + r * .38, stem[1] + r * .06, 'rgb(40,40,44)', 3);
-        circF(c, stem[0] + r * .4, stem[1] + r * .07, 3, 'rgb(30,30,32)');
-        const ca = [bb[0] + r * .28, bb[1] + r * .22];
-        line(c, bb[0], bb[1], ca[0], ca[1], 'rgb(80,80,86)', 3);
-        rrF(c, ca[0] - r * .14, ca[1] - 2, r * .28, 4, 1, 'rgb(40,40,44)');
-        break; }
-      case 'crate':
-        box([184,138,84], 2);
-        for (let k = 1; k < 4; k++) line(c, x + 3, y + h * k / 4, x + w - 3, y + h * k / 4, 'rgb(140,100,58)', 2);
-        break;
-      case 'bench':
-        box(WOOD, 3);
-        for (let k = 1; k < 3; k++) line(c, x + 3, y + h * k / 3, x + w - 3, y + h * k / 3, rgb(DWOOD), 2);
-        break;
-      default: box([180,170,160]);
-    }
-    shadowNext = false;
-  }
-
-  const houseC = off(), houseX = houseC.getContext('2d');   // full colour
-  const dimC   = off(), dimX   = dimC.getContext('2d');     // greyed out (not yet observed)
-  const wallC  = off(), wallX  = wallC.getContext('2d');    // walls, doors, labels
-  (function buildHouse(){
-    const c = houseX, R = rng(3);
-    c.fillStyle = '#eee9e1'; c.fillRect(0, 0, W, H);
-    woodFloor(c, OUTER.x, OUTER.y, OUTER.w, OUTER.h, [214,190,152], R, false);   // hallways
-    const looks = {'Living room':['wood',[176,124,78]], 'Bedroom':['wood',[190,142,96]], 'Study':['wood',[160,110,70]],
-                   'Kitchen':['tile',[236,232,222]], 'Bathroom':['tile',[214,228,232]], 'Garage':['concrete',[196,194,188]]};
-    for (const r of ROOMS){
-      const [kind, base] = looks[r.name];
-      if (kind === 'wood') woodFloor(c, r.x, r.y, r.w, r.h, base, R, r.name === 'Study');
-      else if (kind === 'tile') tileFloor(c, r.x, r.y, r.w, r.h, base);
-      else concreteFloor(c, r.x, r.y, r.w, r.h, base, R);
-    }
-    for (const [x, y, w, h, col] of [[95,140,230,150,[150,72,60]], [60,590,250,170,[96,118,140]]]){
-      rrF(c, x, y, w, h, 6, rgb(col));
-      roundRect(c, x + 8, y + 8, w - 16, h - 16, 4); c.strokeStyle = rgb(col.map(v => Math.min(255, v + 35))); c.lineWidth = 2; c.stroke();
-    }
-    for (const o of OBJECT_DEFS) drawFurniture(c, o);
-
-    // greyed-out copy for unexplored space
-    dimX.drawImage(houseC, 0, 0);
-    const img = dimX.getImageData(0, 0, W, H), d = img.data;
-    for (let i = 0; i < d.length; i += 4){
-      const g = (d[i] + d[i + 1] + d[i + 2]) / 3 * 0.42;
-      d[i] = g + 124; d[i + 1] = g + 124; d[i + 2] = g + 123;
-    }
-    dimX.putImageData(img, 0, 0);
-
-    // walls: white with a dark edge; open doors with wooden leaves
-    const wc = wallX;
-    for (const [t, col] of [[7, 'rgb(132,124,114)'], [4.6, 'rgb(251,250,247)']]){
-      wc.fillStyle = col;
-      for (const s of WALLS){
-        if (s.y1 === s.y2) wc.fillRect(Math.min(s.x1, s.x2) - t, s.y1 - t, Math.abs(s.x2 - s.x1) + 2 * t, 2 * t);
-        else wc.fillRect(s.x1 - t, Math.min(s.y1, s.y2) - t, 2 * t, Math.abs(s.y2 - s.y1) + 2 * t);
-      }
-    }
-    for (const r of ROOMS) for (const dr of r.doors){
-      const Rr = dr.b - dr.a; let hx, hy, a0, a1, lx, ly;
-      if (dr.s === 't'){ hx = dr.a; hy = r.y;       a0 = 0;            a1 = Math.PI / 2; lx = 0;  ly = 1; }
-      if (dr.s === 'b'){ hx = dr.a; hy = r.y + r.h; a0 = -Math.PI / 2; a1 = 0;           lx = 0;  ly = -1; }
-      if (dr.s === 'l'){ hx = r.x; hy = dr.a;       a0 = 0;            a1 = Math.PI / 2; lx = 1;  ly = 0; }
-      if (dr.s === 'r'){ hx = r.x + r.w; hy = dr.a; a0 = Math.PI / 2;  a1 = Math.PI;     lx = -1; ly = 0; }
-      if (dr.hinge === 'b' && dr.s === 'l'){ hy = dr.b; a0 = -Math.PI / 2; a1 = 0; }
-      wc.beginPath(); wc.arc(hx, hy, Rr, a0, a1); wc.strokeStyle = 'rgba(120,112,104,.55)'; wc.lineWidth = 1; wc.stroke();
-      line(wc, hx, hy, hx + lx * Rr, hy + ly * Rr, 'rgb(150,118,84)', 3);
-    }
-  })();
-
-  function drawRoomLabels(c){
-    c.save();
-    c.fillStyle = `rgba(${DARK},.85)`;
-    c.font = `italic 20px ${FONT}`;
-    for (const r of ROOMS){
-      const topDoor = r.doors.some(d => d.s === 't');
-      c.fillText(r.name, r.x + 16, topDoor ? r.y + r.h - 16 : r.y + 30);
-    }
-    c.restore();
-  }
-  function drawScaleBar(c){
-    c.save();
-    const x = 40, y = 788;
-    c.strokeStyle = `rgba(${DARK},.85)`; c.lineWidth = 1.5;
-    c.beginPath(); c.moveTo(x, y); c.lineTo(x + PX_PER_M, y);
-    c.moveTo(x, y - 5); c.lineTo(x, y + 1); c.moveTo(x + PX_PER_M, y - 5); c.lineTo(x + PX_PER_M, y + 1); c.stroke();
-    c.fillStyle = `rgba(${DARK},.85)`; c.font = `italic 14px ${FONT}`;
-    c.fillText('1 m', x + PX_PER_M + 8, y + 4);
-    c.restore();
-  }
-  function drawRegions(c, objs){
-    for (const o of objs){
-      if (!o.seen) continue;
-      const set = labelSet(o), pad = padOf(o), single = set.length === 1, col = single ? GREEN : RED;
-      const f = ambiguity(o);
-      c.save();
-      if (!single && f > 0.05) c.filter = `blur(${(0.4 + f * 1.5).toFixed(1)}px)`;
-      roundRect(c, o.x - pad, o.y - pad, o.w + 2 * pad, o.h + 2 * pad, pad);
-      c.fillStyle = `rgba(${col},${single ? .12 : .16})`;
-      c.fill();
-      c.setLineDash(single ? [] : [9, 6]);
-      c.lineWidth = 2;
-      c.strokeStyle = `rgba(${col},.9)`;
-      c.stroke();
-      c.restore();
-    }
-    // prediction-set labels, nudged apart when they collide
-    c.save();
-    c.font = `italic 15px ${FONT}`;
-    const placed = [];
-    const hit = (x0, x1, y0, y1) => placed.some(b => !(x1 < b[0] || x0 > b[1] || y1 < b[2] || y0 > b[3]));
-    for (const o of objs){
-      if (!o.seen) continue;
-      const set = labelSet(o), pad = padOf(o), single = set.length === 1, col = single ? GREEN : RED;
-      const txt = '{' + set.map(k => CLASSES[k].label).join(', ') + '}';
-      const w = c.measureText(txt).width;
-      const tx = Math.max(6, Math.min(W - w - 10, o.x + o.w / 2 - w / 2));
-      let cands = [o.y - 8, o.y + o.h + 20, o.y - pad - 8, o.y + o.h + pad + 20].filter(v => v >= 18 && v <= H - 4);
-      if (!cands.length) cands = [o.y - 8];
-      let ty = cands.find(v => !hit(tx - 5, tx + w + 5, v - 15, v + 5));
-      if (ty === undefined){ ty = cands[0]; while (hit(tx - 5, tx + w + 5, ty - 15, ty + 5) && ty < H - 4) ty += 22; }
-      placed.push([tx - 5, tx + w + 5, ty - 15, ty + 5]);
-      roundRect(c, tx - 5, ty - 15, w + 10, 21, 4);
-      c.fillStyle = 'rgba(255,255,255,.86)'; c.fill();
-      c.strokeStyle = `rgba(${col},.6)`; c.lineWidth = 1; c.stroke();
-      c.fillStyle = `rgb(${col})`;
-      c.fillText(txt, tx, ty);
-    }
-    c.restore();
-  }
-  function drawGoals(c, S){
-    c.save();
-    S.goals.forEach((g, i) => {
-      const active = i === S.gi, done = i < S.gi;
-      const a = active ? 1 : .55;
-      c.beginPath(); c.arc(g.x, g.y, 12, 0, Math.PI * 2);
-      c.fillStyle = '#fff'; c.fill();
-      c.strokeStyle = `rgba(${GREEN},${a})`; c.lineWidth = 2; c.stroke();
-      c.beginPath(); c.moveTo(g.x - 5, g.y); c.lineTo(g.x + 5, g.y); c.moveTo(g.x, g.y - 5); c.lineTo(g.x, g.y + 5); c.stroke();
-      if (done){ c.beginPath(); c.arc(g.x, g.y, 4.5, 0, 7); c.fillStyle = `rgba(${GREEN},${a})`; c.fill(); }
-      c.font = `italic 17px ${FONT}`;
-      const w1 = c.measureText('π').width; c.font = `italic 11px ${FONT}`; const w2 = c.measureText(g.ap).width;
-      roundRect(c, g.x + 14, g.y - 13, w1 + w2 + 10, 22, 4); c.fillStyle = 'rgba(255,255,255,.82)'; c.fill();
-      c.fillStyle = `rgba(${GREEN},${active ? 1 : .7})`;
-      c.font = `italic 17px ${FONT}`; c.fillText('π', g.x + 18, g.y + 4);
-      c.font = `italic 11px ${FONT}`; c.fillText(g.ap, g.x + 19 + w1, g.y + 8);
-    });
-    c.restore();
-  }
-  function drawTrail(c, S){
-    const T = S.trail;
-    if (T.length < 2) return;
-    c.save();
-    c.lineWidth = 3.4; c.lineCap = 'round'; c.lineJoin = 'round';
-    let i = 0;
-    while (i < T.length - 1){
-      const m = T[i + 1].m;
-      c.strokeStyle = `rgb(${m === 'explore' ? RED : GREEN})`;
-      c.beginPath(); c.moveTo(T[i].x, T[i].y);
-      while (i < T.length - 1 && T[i + 1].m === m){ i++; c.lineTo(T[i].x, T[i].y); }
-      c.stroke();
-    }
-    c.restore();
-  }
-  function drawPlan(c, S){
-    if (!S.path.length) return;
-    c.save();
-    c.setLineDash([9, 7]); c.lineWidth = 2;
-    c.strokeStyle = `rgba(${S.mode === 'explore' ? RED : GREEN},.85)`;
-    c.beginPath(); c.moveTo(S.robot.x, S.robot.y);
-    for (const p of S.path) c.lineTo(p.x, p.y);
-    c.stroke();
-    c.restore();
-  }
-  function drawRobot(c, S, now){
-    // the robot is drawn with its state uncertainty: a blurred body, a Gaussian halo,
-    // and 1σ / 2σ covariance ellipses centred on it
-    const {x, y} = S.robot, s = S.sigma * (1 + Math.sin(now / 500) * 0.05), body = 9;
-    const g = c.createRadialGradient(x, y, 0, x, y, body + 4 * s);
-    g.addColorStop(0, 'rgba(58,120,196,.5)'); g.addColorStop(.55, 'rgba(58,120,196,.2)'); g.addColorStop(1, 'rgba(58,120,196,0)');
-    c.fillStyle = g; c.beginPath(); c.arc(x, y, body + 4 * s, 0, Math.PI * 2); c.fill();
-    c.save();
-    c.filter = `blur(${(s * 0.16).toFixed(1)}px)`;
-    c.beginPath(); c.arc(x, y, body + 2, 0, Math.PI * 2); c.fillStyle = '#fff'; c.fill();
-    c.beginPath(); c.arc(x, y, body, 0, Math.PI * 2); c.fillStyle = 'rgb(44,48,56)'; c.fill();
-    c.restore();
-    c.save();
-    c.translate(x, y); c.rotate(S.heading);
-    c.beginPath(); c.moveTo(0, 0); c.lineTo(body * 1.05, 0); c.strokeStyle = 'rgb(120,220,170)'; c.lineWidth = 3; c.lineCap = 'round'; c.stroke();
-    c.setLineDash([4, 4]);
-    c.strokeStyle = 'rgba(30,50,84,.9)'; c.lineWidth = 1.6;
-    c.beginPath(); c.ellipse(0, 0, body + 1.0 * s, body + .75 * s, 0, 0, Math.PI * 2); c.stroke();
-    c.strokeStyle = 'rgba(60,90,130,.75)'; c.lineWidth = 1.1;
-    c.beginPath(); c.ellipse(0, 0, body + 2.0 * s, body + 1.5 * s, 0, 0, Math.PI * 2); c.stroke();
-    c.restore();
-  }
-
-  function render(now){
-    const S = sim.S;
-    // explored space in colour, the rest greyed out (walls are known a priori)
-    revealFrom(S.robot.x, S.robot.y);
-    ctx.drawImage(houseC, 0, 0);
-    ctx.save(); ctx.beginPath(); ctx.rect(OUTER.x, OUTER.y, OUTER.w, OUTER.h); ctx.clip();
-    ctx.drawImage(dimC, 0, 0);
-    revX.clearRect(0, 0, W, H);
-    revX.globalCompositeOperation = 'source-over';
-    revX.drawImage(maskC, 0, 0);
-    revX.globalCompositeOperation = 'source-in';
-    revX.drawImage(houseC, 0, 0);
-    revX.globalCompositeOperation = 'source-over';
-    ctx.drawImage(revC, 0, 0);
-    ctx.restore();
-    ctx.drawImage(wallC, 0, 0);
-    drawRoomLabels(ctx);
-    drawRegions(ctx, S.objs);
-    drawGoals(ctx, S);
-    drawTrail(ctx, S);
-    drawPlan(ctx, S);
-    drawRobot(ctx, S, now);
-    drawScaleBar(ctx);
-  }
-
   function updatePanel(){
     const S = sim.S;
     let cls = 'idle', txt = phase === 'idle' ? 'ready' : 'translating';
     if (phase === 'running'){
       if (S.mode === 'explore'){ cls = 'explore'; txt = 'exploration'; }
-      else if (S.mode === 'done'){ cls = 'exploit'; txt = 'mission complete'; }
+      else if (S.mode === 'touch' || S.mode === 'done'){ cls = 'found'; txt = `found the ${CLASSES[S.target].label}`; }
       else if (S.mode === 'stuck'){ cls = 'explore'; txt = 'replanning'; }
       else { cls = 'exploit'; txt = 'exploitation'; }
     }
@@ -1331,10 +1851,10 @@
     statsEl.innerHTML = `1 − α = 0.95 &nbsp;·&nbsp; detected ${seen.length}/${S.objs.length} &nbsp;·&nbsp; singleton ${single}/${seen.length || 0}`;
     if (!seen.length){ keyEl.innerHTML = '<span class="key-empty">No objects detected yet.</span>'; return; }
     keyEl.innerHTML = seen.map(o => {
-      const set = labelSet(o), res = set.length === 1;
-      return `<div class="kr ${res ? 'res' : 'open'}"><span class="kn">${o.name}</span>` +
+      const set = labelSet(o), res = set.length === 1, tgt = isTarget(o, S.target);
+      return `<div class="kr ${tgt ? 'tgt' : res ? 'res' : 'open'}"><span class="kn">${o.name}</span>` +
              `<span class="ks">{${set.map(k => CLASSES[k].label).join(', ')}}</span>` +
-             `<span class="kd">${(padOf(o) / PX_PER_M).toFixed(2)} m</span></div>`;
+             `<span class="kd">${tgt ? 'target' : (padOf(o, S.target) / PX_PER_M).toFixed(2) + ' m'}</span></div>`;
     }).join('');
   }
 
@@ -1348,22 +1868,22 @@
   function frame(now){
     const dt = Math.min(64, now - last); last = now;
     if (!sim || !demoVisible){ requestAnimationFrame(frame); return; }
-    if (phase === 'running' && !sim.S.done){
+    if (phase === 'running' && !sim.S.done && now >= thinkUntil){
       acc += dt * (reduce ? 0.4 : 1);
       let n = 0;
       while (acc >= 16.667 && n < 4){ sim.step(); acc -= 16.667; n++; }
       if (sim.S.done) doneAt = now;
     } else acc = 0;
-    if (sim.S.done && now - doneAt > 3200) startTask(sel.value);
-    render(now);
+    if (sim.S.done && now - doneAt > 4500) startTask(sel.value);
+    try { render(now); } catch (err){ console.error(err); }
     updatePanel();
     requestAnimationFrame(frame);
   }
 
   sel.addEventListener('change', () => { started = true; });
-  // static first frame so the figure is never blank before it starts
   sim = createSim(sel.value); phase = 'idle';
-  render(performance.now()); updatePanel();
+  try { render(performance.now()); } catch (err){ console.error(err); }
+  updatePanel();
   requestAnimationFrame(frame);
 })();
 </script>
